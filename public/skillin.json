@@ -1,0 +1,10 @@
+{
+  "name": "Memory Book",
+  "brief": "Memory Book is a private journal for one person. They write short memories with a date and a mood, and look back on them. The main screens are Home with the latest memories, a full Memories list, a New memory form, and Find on map, where an address is typed in and shown on a map image.",
+  "pages": [
+    {"name": "Home", "path": "/"},
+    {"name": "Memories", "path": "/#/memories"},
+    {"name": "New memory", "path": "/#/new"},
+    {"name": "Find on map", "path": "/#/map"}
+  ]
+}

@@ -3,6 +3,7 @@ import { HashRouter, Link, Route, Routes } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Memories from './pages/Memories.jsx'
 import NewMemory from './pages/NewMemory.jsx'
+import FindOnMap from './pages/FindOnMap.jsx'
 import { sampleMemories } from './data.js'
 import { colors } from './components/theme.js'
 
@@ -37,6 +38,9 @@ export default function App() {
             <Link to="/new" style={{ color: colors.ink }}>
               New memory
             </Link>
+            <Link to="/map" style={{ color: colors.ink }}>
+              Find on map
+            </Link>
           </div>
         </nav>
 
@@ -44,6 +48,7 @@ export default function App() {
           <Route path="/" element={<Home memories={memories} />} />
           <Route path="/memories" element={<Memories memories={memories} />} />
           <Route path="/new" element={<NewMemory onAdd={addMemory} />} />
+          <Route path="/map" element={<FindOnMap />} />
         </Routes>
       </div>
     </HashRouter>
