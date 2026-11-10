@@ -5,6 +5,7 @@ A private book where a person writes short memories (title, date, mood and a few
 
 ## Main screens
 - **Home** (`/`): a welcome section, a "Write a memory" button, a "Tell me a joke" button that shows a one-line joke from Gemini, and the latest three memories.
+- **Home** also has a "What is for dinner?" section: type what is in the fridge, press "Suggest 3 dinners", and see three dinner ideas from Gemini. Each press uses credits.
 - **Memories** (`/#/memories`): every memory, newest first.
 - **New memory** (`/#/new`): a form to write a memory (title, date, mood, text). Submitting adds it to the top of the list and opens Memories.
 - **Find on map** (`/#/map`): type an address, press "Show on map", and see the address with a map image and a red marker on it. The map image cannot be dragged or zoomed.
@@ -13,6 +14,7 @@ A private book where a person writes short memories (title, date, mood and a few
 - `GET /api/maps/locate?address=...`: finds the address and returns its coordinates and full address. Found addresses are remembered in the backend, so repeat searches do not use credits again.
 - `GET /api/maps/image?lat=...&lng=...`: a PNG map image with a marker at those coordinates.
 - `GET /api/jokes/random`: asks Gemini for one short joke. Used by the "Tell me a joke" button on Home. Each click uses credits.
+- `GET /api/dinner/ideas?ingredients=...`: asks Gemini for three dinner ideas from the listed fridge items (max 300 characters). Used by the "Suggest 3 dinners" section on Home. Each click uses credits.
 
 Memories are still sample data in `src/data.js`.
 
