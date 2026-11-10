@@ -7,7 +7,7 @@ A private book where a person writes short memories (title, date, mood and a few
 - **Home** (`/`): a welcome section, a "Write a memory" button, a "Tell me a joke" button that shows a one-line joke from Gemini, and the latest three memories.
 - **Home** also has a "What is for dinner?" section: type what is in the fridge, press "Suggest 3 dinners", and see three dinner ideas from Gemini. Each press uses credits.
 - **Memories** (`/#/memories`): every memory, newest first.
-- **New memory** (`/#/new`): a form to write a memory (title, date, mood, text). Submitting adds it to the top of the list and opens Memories.
+- **New memory** (`/#/new`): a form to write a memory (title, date, mood, text). Submitting adds it to the top of the list and opens Memories. A "Dictate" button under the Memory box adds spoken words to the text (browser speech recognition, Chrome and Edge only; no credits used).
 - **Find on map** (`/#/map`): type an address, press "Show on map", and see the address with a map image and a red marker on it. The map image cannot be dragged or zoomed.
 
 ## API endpoints
