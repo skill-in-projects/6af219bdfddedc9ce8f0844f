@@ -9,11 +9,13 @@ A private book where a person writes short memories (title, date, mood and a few
 - **Memories** (`/#/memories`): every memory, newest first.
 - **New memory** (`/#/new`): a form to write a memory (title, date, mood, text). Submitting adds it to the top of the list and opens Memories. A "Dictate" button under the Memory box adds spoken words to the text (browser speech recognition, Chrome and Edge only; no credits used).
 - **Find on map** (`/#/map`): type an address, press "Show on map", and see the address with a map image and a red marker on it. The map image cannot be dragged or zoomed.
+- **Shops** (`/#/shops`): type your own address, add shops (name and address) to a list, and press "Show walking times" to see the walking time from your address to each shop. Each shop's walking time is looked up once and remembered in the backend, so repeat checks do not use credits again. The shop list is not saved yet (it lasts until reload).
 
 ## API endpoints
 - `GET /api/maps/locate?address=...`: finds the address and returns its coordinates and full address. Found addresses are remembered in the backend, so repeat searches do not use credits again.
 - `GET /api/maps/image?lat=...&lng=...`: a PNG map image with a marker at those coordinates.
 - `GET /api/jokes/random`: asks Gemini for one short joke. Used by the "Tell me a joke" button on Home. Each click uses credits.
+- `GET /api/shops/walk-time?from=...&to=...`: the walking time in minutes between two addresses. Each new pair of addresses uses credits once; repeats are remembered in the backend.
 - `GET /api/dinner/ideas?ingredients=...`: asks Gemini for three dinner ideas from the listed fridge items (max 300 characters). Used by the "Suggest 3 dinners" section on Home. Each click uses credits.
 
 Memories are still sample data in `src/data.js`.
