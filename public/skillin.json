@@ -5,7 +5,6 @@
     {"name": "Home", "path": "/"},
     {"name": "Memories", "path": "/#/memories"},
     {"name": "New memory", "path": "/#/new"},
-    {"name": "Find on map", "path": "/#/map"},
-    {"name": "Shops", "path": "/#/shops"}
+    {"name": "Find on map", "path": "/#/map"}
   ]
 }
