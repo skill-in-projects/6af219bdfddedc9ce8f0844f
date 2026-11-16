@@ -4,6 +4,7 @@ import Home from './pages/Home.jsx'
 import Memories from './pages/Memories.jsx'
 import NewMemory from './pages/NewMemory.jsx'
 import FindOnMap from './pages/FindOnMap.jsx'
+import Beatles from './pages/Beatles.jsx'
 import { sampleMemories } from './data.js'
 import { colors } from './components/theme.js'
 
@@ -41,6 +42,9 @@ export default function App() {
             <Link to="/map" style={{ color: colors.ink }}>
               Find on map
             </Link>
+            <Link to="/beatles" style={{ color: colors.ink }}>
+              Beatles
+            </Link>
           </div>
         </nav>
 
@@ -49,6 +53,7 @@ export default function App() {
           <Route path="/memories" element={<Memories memories={memories} />} />
           <Route path="/new" element={<NewMemory onAdd={addMemory} />} />
           <Route path="/map" element={<FindOnMap />} />
+          <Route path="/beatles" element={<Beatles />} />
         </Routes>
       </div>
     </HashRouter>
