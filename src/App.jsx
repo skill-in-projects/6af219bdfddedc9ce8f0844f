@@ -5,7 +5,6 @@ import Memories from './pages/Memories.jsx'
 import NewMemory from './pages/NewMemory.jsx'
 import FindOnMap from './pages/FindOnMap.jsx'
 import Beatles from './pages/Beatles.jsx'
-import BonJovi from './pages/BonJovi.jsx'
 import { sampleMemories } from './data.js'
 import { colors } from './components/theme.js'
 
@@ -46,9 +45,6 @@ export default function App() {
             <Link to="/beatles" style={{ color: colors.ink }}>
               Beatles
             </Link>
-            <Link to="/bon-jovi" style={{ color: colors.ink }}>
-              Bon Jovi
-            </Link>
           </div>
         </nav>
 
@@ -58,7 +54,6 @@ export default function App() {
           <Route path="/new" element={<NewMemory onAdd={addMemory} />} />
           <Route path="/map" element={<FindOnMap />} />
           <Route path="/beatles" element={<Beatles />} />
-          <Route path="/bon-jovi" element={<BonJovi />} />
         </Routes>
       </div>
     </HashRouter>
