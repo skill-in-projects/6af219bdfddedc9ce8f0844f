@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { NotSavedNote } from '../components/ui.jsx'
-import DictateButton from '../components/DictateButton.jsx'
 import { buttonStyle, colors } from '../components/theme.js'
 import { moods } from '../data.js'
 
@@ -71,7 +70,6 @@ export default function NewMemory({ onAdd }) {
             onChange={(e) => setText(e.target.value)}
           />
         </label>
-        <DictateButton onText={(spoken) => setText((current) => [current, spoken].filter(Boolean).join(' '))} />
 
         {error && <p style={{ color: '#b91c1c', margin: 0 }}>{error}</p>}
 
