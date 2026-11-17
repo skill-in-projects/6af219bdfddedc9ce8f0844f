@@ -173,10 +173,15 @@ export default function JumpingElephant() {
         <Block x={-118} y={-100} z={-50} w={8} h={70} d={50} color={skin} />
         <Block x={112} y={-60} z={0} w={10} h={60} d={10} color={skin} />
         <Block x={-140} y={-110} z={46} w={10} h={10} d={4} color={EYE} />
+        <Block x={-110} y={-110} z={46} w={10} h={10} d={4} color={EYE} />
+        <Block x={-125} y={-80} z={46} w={30} h={4} d={3} color={EYE} />
         <Block x={-150} y={-35} z={40} w={8} h={30} d={8} color={TUSK} />
         <Block x={10} y={-110} z={0} w={56} h={20} d={44} color={JEANS} />
         <Block x={10} y={-140} z={0} w={40} h={40} d={28} color={SHIRT} />
         <Block x={10} y={-175} z={0} w={28} h={30} d={28} color={SKIN} />
+        <Block x={4} y={-180} z={15} w={4} h={4} d={2} color={EYE} />
+        <Block x={16} y={-180} z={15} w={4} h={4} d={2} color={EYE} />
+        <Block x={10} y={-166} z={15} w={10} h={2} d={2} color={EYE} />
         <Block x={10} y={-189} z={0} w={56} h={5} d={56} color={HAT} />
         <Block x={10} y={-198} z={0} w={28} h={14} d={28} color={HAT} />
       </div>
