@@ -4,7 +4,7 @@
 A private book where a person writes short memories (title, date, mood and a few lines) and looks back on them.
 
 ## Main screens
-- **Home** (`/`): a welcome section, a "Write a memory" button, a "Tell me a joke" button that shows a one-line joke from Gemini, and the latest three memories. Under the joke, a grey 3D elephant jumps in place (built from CSS boxes, no image; it stops moving for users who ask for less motion).
+- **Home** (`/`): a welcome section, a "Write a memory" button, a "Tell me a joke" button that shows a one-line joke from Gemini, and the latest three memories. Under the joke, a grey 3D elephant jumps in place (built from CSS boxes, no image; it stops moving for users who ask for less motion). Each landing makes a synthesized fart sound and a puff cloud from its back, and the elephant turns pink for a moment. Sound starts after the first click or key press on the page.
 - **Home** also has a "What is for dinner?" section: type what is in the fridge, press "Suggest 3 dinners", and see three dinner ideas from Gemini. Each press uses credits.
 - **Memories** (`/#/memories`): every memory, newest first.
 - **New memory** (`/#/new`): a form to write a memory (title, date, mood, text). Submitting adds it to the top of the list and opens Memories.

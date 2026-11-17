@@ -1,12 +1,24 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const BODY = '#8e989e'
+const PINK = '#f472b6'
 const EYE = '#2b2f31'
 const TUSK = '#f5efe0'
 
 const css = `
   .elephant-scene { animation: elephant-jump 1.6s ease-in-out infinite; }
   .elephant-shadow { animation: elephant-shadow 1.6s ease-in-out infinite; }
+  .elephant-puff {
+    position: absolute;
+    left: 296px;
+    top: 66px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #d9c77a 0%, rgba(217, 199, 122, 0) 70%);
+    opacity: 0;
+    animation: elephant-puff 0.9s ease-out forwards;
+  }
   @keyframes elephant-jump {
     0%, 100% { transform: translateY(0) rotateY(-20deg) scale(1.08, 0.9); }
     20% { transform: translateY(0) rotateY(-20deg) scale(1, 1); }
@@ -17,13 +29,18 @@ const css = `
     0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.35; }
     50% { transform: translateX(-50%) scale(0.55); opacity: 0.15; }
   }
+  @keyframes elephant-puff {
+    0% { opacity: 0.9; transform: translate(0, 0) scale(0.4); }
+    100% { opacity: 0; transform: translate(50px, -36px) scale(2.2); }
+  }
   @media (prefers-reduced-motion: reduce) {
     .elephant-scene, .elephant-shadow { animation: none; }
+    .elephant-puff { display: none; }
   }
 `
 
 // One solid box made of six flat faces, so it looks 3D when the scene turns
-function Block({ x, y, z, w, h, d, color = BODY }) {
+function Block({ x, y, z, w, h, d, color }) {
   const face = (extra) => ({ position: 'absolute', background: color, ...extra })
   return (
     <div
@@ -52,6 +69,10 @@ function Block({ x, y, z, w, h, d, color = BODY }) {
 // A grey elephant built from boxes, jumping in place. Facing left.
 export default function JumpingElephant() {
   const audioRef = useRef(null)
+  const pinkTimer = useRef(null)
+  const [farts, setFarts] = useState(0)
+  const [pink, setPink] = useState(false)
+  const skin = pink ? PINK : BODY
 
   // Browsers only allow sound after the visitor clicks or presses a key, so the audio is started on the first one
   useEffect(() => {
@@ -66,11 +87,12 @@ export default function JumpingElephant() {
     return () => {
       window.removeEventListener('pointerdown', unlockAudio)
       window.removeEventListener('keydown', unlockAudio)
+      clearTimeout(pinkTimer.current)
     }
   }, [])
 
   // A short synthesized fart: a low buzz plus noise, with a few sputters
-  function playFart() {
+  function playSound() {
     const ctx = audioRef.current
     if (!ctx || ctx.state !== 'running') return
     const now = ctx.currentTime
@@ -112,27 +134,40 @@ export default function JumpingElephant() {
     noise.stop(end)
   }
 
+  // Each loop of the jump ends with the landing, so the fart goes out then
+  function handleLanding() {
+    playSound()
+    setFarts((count) => count + 1)
+    setPink(true)
+    clearTimeout(pinkTimer.current)
+    pinkTimer.current = setTimeout(() => setPink(false), 900)
+  }
+
   return (
     <div role="img" aria-label="A grey 3D elephant jumping" style={{ position: 'relative', width: 420, height: 300, margin: '0 auto', perspective: 800 }}>
       <style>{css}</style>
-      {/* Each loop of the jump ends with the landing, so the sound plays then */}
       <div
         className="elephant-scene"
-        onAnimationIteration={playFart}
+        onAnimationIteration={handleLanding}
         style={{ position: 'absolute', inset: 0, transformStyle: 'preserve-3d' }}
       >
-        <Block x={0} y={-40} z={0} w={200} h={120} d={120} />
-        <Block x={-125} y={-95} z={0} w={90} h={90} d={90} />
-        <Block x={-175} y={-35} z={0} w={28} h={50} d={28} />
-        <Block x={-188} y={20} z={0} w={26} h={45} d={26} />
-        <Block x={-178} y={72} z={0} w={24} h={30} d={24} />
-        <Block x={-75} y={70} z={35} w={34} h={100} d={34} />
-        <Block x={-75} y={70} z={-35} w={34} h={100} d={34} />
-        <Block x={75} y={70} z={35} w={34} h={100} d={34} />
-        <Block x={75} y={70} z={-35} w={34} h={100} d={34} />
-        <Block x={-118} y={-100} z={50} w={8} h={70} d={50} />
-        <Block x={-118} y={-100} z={-50} w={8} h={70} d={50} />
-        <Block x={112} y={-60} z={0} w={10} h={60} d={10} />
+        {[0, 1, 2].map((puff) =>
+          farts > 0 ? (
+            <span key={`${farts}-${puff}`} className="elephant-puff" style={{ animationDelay: `${puff * 0.12}s` }} />
+          ) : null,
+        )}
+        <Block x={0} y={-40} z={0} w={200} h={120} d={120} color={skin} />
+        <Block x={-125} y={-95} z={0} w={90} h={90} d={90} color={skin} />
+        <Block x={-175} y={-35} z={0} w={28} h={50} d={28} color={skin} />
+        <Block x={-188} y={20} z={0} w={26} h={45} d={26} color={skin} />
+        <Block x={-178} y={72} z={0} w={24} h={30} d={24} color={skin} />
+        <Block x={-75} y={70} z={35} w={34} h={100} d={34} color={skin} />
+        <Block x={-75} y={70} z={-35} w={34} h={100} d={34} color={skin} />
+        <Block x={75} y={70} z={35} w={34} h={100} d={34} color={skin} />
+        <Block x={75} y={70} z={-35} w={34} h={100} d={34} color={skin} />
+        <Block x={-118} y={-100} z={50} w={8} h={70} d={50} color={skin} />
+        <Block x={-118} y={-100} z={-50} w={8} h={70} d={50} color={skin} />
+        <Block x={112} y={-60} z={0} w={10} h={60} d={10} color={skin} />
         <Block x={-140} y={-110} z={46} w={10} h={10} d={4} color={EYE} />
         <Block x={-150} y={-35} z={40} w={8} h={30} d={8} color={TUSK} />
       </div>
