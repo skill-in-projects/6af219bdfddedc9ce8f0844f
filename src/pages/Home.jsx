@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { EmptyLink, MemoryCard } from '../components/ui.jsx'
+import JumpingElephant from '../components/JumpingElephant.jsx'
 import { buttonStyle, colors } from '../components/theme.js'
 
 const inputStyle = {
@@ -92,6 +93,9 @@ export default function Home({ memories }) {
         </div>
         {joke && <p style={{ fontSize: 18, margin: '20px 0 0' }}>{joke}</p>}
         {jokeMessage && <p style={{ color: '#b91c1c', margin: '20px 0 0' }}>{jokeMessage}</p>}
+        <div style={{ marginTop: 32 }}>
+          <JumpingElephant />
+        </div>
       </section>
 
       <section style={{ padding: '0 0 48px' }}>
