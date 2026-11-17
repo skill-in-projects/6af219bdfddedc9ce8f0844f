@@ -47,6 +47,7 @@ export default function Beatles() {
             key={`${song}-${index}`}
             style={{
               background: colors.card,
+              color: colors.ink,
               border: `1px solid ${colors.line}`,
               borderRadius: 8,
               padding: '14px 18px',

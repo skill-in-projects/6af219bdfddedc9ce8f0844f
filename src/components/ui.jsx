@@ -15,6 +15,7 @@ export function MemoryCard({ memory }) {
     <article
       style={{
         background: colors.card,
+        color: colors.ink,
         border: `1px solid ${colors.line}`,
         borderRadius: 16,
         padding: 20,
