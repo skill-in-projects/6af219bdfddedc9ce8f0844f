@@ -17,7 +17,7 @@ export default function App() {
 
   return (
     <HashRouter>
-      <div style={{ minHeight: '100vh', background: colors.paper, color: colors.ink, fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: colors.paper, color: colors.onPaper, fontFamily: 'system-ui, sans-serif' }}>
         <nav
           style={{
             display: 'flex',
@@ -29,20 +29,20 @@ export default function App() {
             borderBottom: `1px solid ${colors.line}`,
           }}
         >
-          <Link to="/" style={{ fontFamily: 'Georgia, serif', fontSize: 22, color: colors.ink, textDecoration: 'none' }}>
+          <Link to="/" style={{ fontFamily: 'Georgia, serif', fontSize: 22, color: colors.onPaper, textDecoration: 'none' }}>
             Memory Book
           </Link>
           <div style={{ display: 'flex', gap: 20 }}>
-            <Link to="/memories" style={{ color: colors.ink }}>
+            <Link to="/memories" style={{ color: colors.onPaper }}>
               Memories
             </Link>
-            <Link to="/new" style={{ color: colors.ink }}>
+            <Link to="/new" style={{ color: colors.onPaper }}>
               New memory
             </Link>
-            <Link to="/map" style={{ color: colors.ink }}>
+            <Link to="/map" style={{ color: colors.onPaper }}>
               Find on map
             </Link>
-            <Link to="/beatles" style={{ color: colors.ink }}>
+            <Link to="/beatles" style={{ color: colors.onPaper }}>
               Beatles
             </Link>
           </div>

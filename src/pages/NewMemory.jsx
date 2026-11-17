@@ -37,7 +37,7 @@ export default function NewMemory({ onAdd }) {
   return (
     <main style={{ maxWidth: 640, margin: '0 auto', padding: '40px 24px' }}>
       <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 36, margin: '0 0 8px' }}>New memory</h1>
-      <p style={{ color: colors.muted, margin: '0 0 16px' }}>Write down what you want to remember.</p>
+      <p style={{ color: colors.onPaperMuted, margin: '0 0 16px' }}>Write down what you want to remember.</p>
       <NotSavedNote />
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 16 }}>

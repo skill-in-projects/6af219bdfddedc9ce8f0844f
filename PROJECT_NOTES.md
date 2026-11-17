@@ -25,5 +25,6 @@ Memories are still sample data in `src/data.js`.
 
 ## Decisions
 - First version: a warm paper-and-brown look, with serif headings.
+- Later: the user asked for a dark green background. Cards stay white; text on the background is cream (colors in `src/components/theme.js`).
 - Moods offered: Happy, Calm, Thoughtful, Excited, Sad.
 - Map page: the user asked for an address on a map. Only a static map image is possible here, so it is not interactive.

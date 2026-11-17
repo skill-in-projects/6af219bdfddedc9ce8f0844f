@@ -1,10 +1,14 @@
 export const colors = {
-  paper: '#fdf8f1',
+  paper: '#1f3d2e',
   ink: '#3b2f25',
   muted: '#7a6a5a',
   accent: '#b5651d',
   card: '#ffffff',
   line: '#eadfce',
+  // Text and links placed directly on the dark green background
+  onPaper: '#f4efe4',
+  onPaperMuted: '#bcd0c1',
+  onPaperAccent: '#f0b27a',
 }
 
 export const buttonStyle = {

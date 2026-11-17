@@ -18,7 +18,7 @@ export default function Beatles() {
   return (
     <main style={{ maxWidth: 880, margin: '0 auto', padding: '40px 24px' }}>
       <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 36, margin: '0 0 8px' }}>Beatles</h1>
-      <p style={{ color: colors.muted, margin: '0 0 24px' }}>My favorite Beatles songs.</p>
+      <p style={{ color: colors.onPaperMuted, margin: '0 0 24px' }}>My favorite Beatles songs.</p>
 
       <form onSubmit={addSong} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
         <input

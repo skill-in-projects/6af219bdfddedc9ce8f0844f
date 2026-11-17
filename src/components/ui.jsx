@@ -4,7 +4,7 @@ import { colors } from './theme.js'
 // Shown next to data the user changes on screen, until saving is turned on.
 export function NotSavedNote() {
   return (
-    <p style={{ margin: '0 0 16px', fontSize: 14, color: colors.accent }}>
+    <p style={{ margin: '0 0 16px', fontSize: 14, color: colors.onPaperAccent }}>
       Not saved yet: upgrade to keep your changes
     </p>
   )
@@ -31,7 +31,7 @@ export function MemoryCard({ memory }) {
 
 export function EmptyLink() {
   return (
-    <Link to="/new" style={{ color: colors.accent }}>
+    <Link to="/new" style={{ color: colors.onPaperAccent }}>
       Write your first memory
     </Link>
   )

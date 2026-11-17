@@ -79,14 +79,14 @@ export default function Home({ memories }) {
         <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 44, margin: '0 0 12px' }}>
           Keep the moments that matter
         </h1>
-        <p style={{ fontSize: 18, color: colors.muted, margin: '0 0 28px' }}>
+        <p style={{ fontSize: 18, color: colors.onPaperMuted, margin: '0 0 28px' }}>
           A private book for small days, big feelings and the people in them.
         </p>
         <Link to="/new" style={buttonStyle}>
           Write a memory
         </Link>
         <div style={{ marginTop: 16 }}>
-          <button type="button" style={{ ...buttonStyle, background: colors.ink }} onClick={handleJoke} disabled={jokeLoading}>
+          <button type="button" style={buttonStyle} onClick={handleJoke} disabled={jokeLoading}>
             {jokeLoading ? 'Thinking...' : 'Tell me a joke'}
           </button>
         </div>
@@ -96,7 +96,7 @@ export default function Home({ memories }) {
 
       <section style={{ padding: '0 0 48px' }}>
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 26, margin: '0 0 8px' }}>What is for dinner?</h2>
-        <p style={{ color: colors.muted, margin: '0 0 16px' }}>Type what is in your fridge and get three dinner ideas.</p>
+        <p style={{ color: colors.onPaperMuted, margin: '0 0 16px' }}>Type what is in your fridge and get three dinner ideas.</p>
         <div style={{ display: 'grid', gap: 12, maxWidth: 640 }}>
           <input
             type="text"
@@ -106,7 +106,7 @@ export default function Home({ memories }) {
             style={inputStyle}
           />
           <div>
-            <button type="button" style={{ ...buttonStyle, background: colors.ink }} onClick={handleDinner} disabled={dinnerLoading}>
+            <button type="button" style={buttonStyle} onClick={handleDinner} disabled={dinnerLoading}>
               {dinnerLoading ? 'Thinking...' : 'Suggest 3 dinners'}
             </button>
           </div>
