@@ -4,6 +4,10 @@ const BODY = '#8e989e'
 const PINK = '#f472b6'
 const EYE = '#2b2f31'
 const TUSK = '#f5efe0'
+const SKIN = '#e0b08a'
+const SHIRT = '#b5651d'
+const JEANS = '#3b5b8a'
+const HAT = '#6b4423'
 
 const css = `
   .elephant-scene { animation: elephant-jump 1.6s ease-in-out infinite; }
@@ -11,7 +15,7 @@ const css = `
   .elephant-puff {
     position: absolute;
     left: 296px;
-    top: 66px;
+    top: 106px;
     width: 44px;
     height: 44px;
     border-radius: 50%;
@@ -66,7 +70,7 @@ function Block({ x, y, z, w, h, d, color }) {
   )
 }
 
-// A grey elephant built from boxes, jumping in place. Facing left.
+// A grey elephant built from boxes, jumping in place. Facing left. A cowboy rides on its back.
 export default function JumpingElephant() {
   const audioRef = useRef(null)
   const pinkTimer = useRef(null)
@@ -144,7 +148,7 @@ export default function JumpingElephant() {
   }
 
   return (
-    <div role="img" aria-label="A grey 3D elephant jumping" style={{ position: 'relative', width: 420, height: 300, margin: '0 auto', perspective: 800 }}>
+    <div role="img" aria-label="A grey 3D elephant jumping with a cowboy on its back" style={{ position: 'relative', width: 420, height: 380, margin: '0 auto', perspective: 800 }}>
       <style>{css}</style>
       <div
         className="elephant-scene"
@@ -170,10 +174,15 @@ export default function JumpingElephant() {
         <Block x={112} y={-60} z={0} w={10} h={60} d={10} color={skin} />
         <Block x={-140} y={-110} z={46} w={10} h={10} d={4} color={EYE} />
         <Block x={-150} y={-35} z={40} w={8} h={30} d={8} color={TUSK} />
+        <Block x={10} y={-110} z={0} w={56} h={20} d={44} color={JEANS} />
+        <Block x={10} y={-140} z={0} w={40} h={40} d={28} color={SHIRT} />
+        <Block x={10} y={-175} z={0} w={28} h={30} d={28} color={SKIN} />
+        <Block x={10} y={-189} z={0} w={56} h={5} d={56} color={HAT} />
+        <Block x={10} y={-198} z={0} w={28} h={14} d={28} color={HAT} />
       </div>
       <div
         className="elephant-shadow"
-        style={{ position: 'absolute', left: '50%', top: 262, width: 220, height: 26, marginLeft: 0, borderRadius: '50%', background: '#000' }}
+        style={{ position: 'absolute', left: '50%', top: 302, width: 220, height: 26, marginLeft: 0, borderRadius: '50%', background: '#000' }}
       />
     </div>
   )
