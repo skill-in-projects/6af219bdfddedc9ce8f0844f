@@ -100,8 +100,8 @@ function Cloud({ cloud }) {
     <div
       style={{
         position: 'absolute',
-        left: `${cloud.left}%`,
-        top: `${cloud.top}%`,
+        left: cloud.x,
+        top: cloud.y,
         width: cloud.size,
         height: cloud.size * 0.6,
         animation: 'gas-in 2.5s ease-out forwards',
@@ -132,6 +132,7 @@ export default function PianoGame() {
   const audioRef = useRef(null)
   const busy = useRef(false)
   const nextCloudId = useRef(0)
+  const elephantRef = useRef(null)
   const stepTimer = useRef(null)
   const pressTimer = useRef(null)
 
@@ -160,16 +161,16 @@ export default function PianoGame() {
     return audioRef.current
   }
 
+  // The cloud starts at the elephant's rear, where the fart comes out, and stays close to that spot
   function addCloud() {
+    const rect = elephantRef.current?.getBoundingClientRect()
+    const size = 260 + Math.random() * 180
+    const x = (rect?.left ?? 0) + 330 + (Math.random() - 0.5) * 120
+    const y = (rect?.top ?? 0) + 150 + (Math.random() - 0.5) * 80
+    const id = nextCloudId.current++
     setClouds((list) => [
       ...list,
-      {
-        id: nextCloudId.current++,
-        left: Math.random() * 85,
-        top: Math.random() * 85,
-        size: 260 + Math.random() * 180,
-        drift: 12 + Math.random() * 10,
-      },
+      { id, x: x - size / 2, y: y - size * 0.3, size, drift: 12 + Math.random() * 10 },
     ])
   }
 
@@ -221,6 +222,7 @@ export default function PianoGame() {
 
       <div style={{ position: 'relative', width: STAGE_W, height: STAGE_H, maxWidth: '100%', margin: '0 auto' }}>
         <div
+          ref={elephantRef}
           style={{
             position: 'absolute',
             left: pos.x,
