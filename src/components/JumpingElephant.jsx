@@ -81,7 +81,7 @@ const DEFAULT_LOOK = { shirt: SHIRT, jeans: JEANS, hat: HAT }
 // A grey elephant built from boxes, jumping in place. Facing left. A cowboy rides on its back.
 // onPuffClick runs when the visitor clicks while the puff cloud is showing.
 // look sets the cowboy's shirt, jeans and hat colors.
-export default function JumpingElephant({ onPuffClick, look = DEFAULT_LOOK, bouncing = true, fartRequest = 0, onFart, faceColor = SKIN }) {
+export default function JumpingElephant({ onPuffClick, look = DEFAULT_LOOK, bouncing = true, fartRequest = 0, onFart, faceColor = SKIN, quiet = false }) {
   const audioRef = useRef(null)
   const pinkTimer = useRef(null)
   const puffTimer = useRef(null)
@@ -153,6 +153,8 @@ export default function JumpingElephant({ onPuffClick, look = DEFAULT_LOOK, boun
 
   // A fart: a sound, a puff cloud and a short pink flash
   function fart() {
+    // While quiet (the cleaner is locked on the elephant's rear) the elephant does not fart
+    if (quiet) return
     onFart?.()
     playSound()
     setFarts((count) => count + 1)

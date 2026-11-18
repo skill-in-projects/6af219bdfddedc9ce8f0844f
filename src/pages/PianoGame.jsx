@@ -32,6 +32,11 @@ const ROBOT_H = 64
 const NOZZLE_X = 45
 const NOZZLE_Y = 62
 const INITIAL_ROBOT = { x: 120, y: 160, vx: 1.5, vy: 0.8 }
+// Dragging the robot this close to the elephant's rear locks it there
+const DOCK_DISTANCE = 40
+// How long the robot stays locked on the rear before it is launched
+const DOCK_MS = 10000
+const LAUNCH_SPEED = 40
 
 const gasCss = `
   @keyframes gas-in { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
@@ -94,6 +99,36 @@ function playNote(ctx, midi) {
   overtone.stop(now + 1.6)
 }
 
+// The robot launching like a rocket: a burst of noise whose pitch sweeps upward and fades out
+function playSwoosh(ctx) {
+  const now = ctx.currentTime
+  const length = 0.8
+  const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * length), ctx.sampleRate)
+  const samples = buffer.getChannelData(0)
+  for (let i = 0; i < samples.length; i++) {
+    samples[i] = Math.random() * 2 - 1
+  }
+  const noise = ctx.createBufferSource()
+  noise.buffer = buffer
+
+  const filter = ctx.createBiquadFilter()
+  filter.type = 'bandpass'
+  filter.Q.value = 1.5
+  filter.frequency.setValueAtTime(300, now)
+  filter.frequency.exponentialRampToValueAtTime(3000, now + length)
+
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(0.0001, now)
+  gain.gain.exponentialRampToValueAtTime(0.5, now + 0.15)
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + length)
+
+  noise.connect(filter)
+  filter.connect(gain)
+  gain.connect(ctx.destination)
+  noise.start(now)
+  noise.stop(now + length)
+}
+
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max)
 }
@@ -128,8 +163,13 @@ function drift(position, velocity, min, max) {
   return { position: clamp(next, min, max), velocity: -velocity }
 }
 
-// The cleaner robot flies on its own, in a random direction, and bounces off the edges of the screen
+// The cleaner robot flies on its own. After a launch it keeps its speed and slows down, then goes back to flying randomly
 function moveRobot(robot) {
+  if (Math.abs(robot.vx) > 2.5 || Math.abs(robot.vy) > 2.5) {
+    const horizontal = drift(robot.x, robot.vx * 0.96, 0, window.innerWidth - ROBOT_W)
+    const vertical = drift(robot.y, robot.vy * 0.96, 0, window.innerHeight - ROBOT_H)
+    return { x: horizontal.position, y: vertical.position, vx: horizontal.velocity, vy: vertical.velocity }
+  }
   const vx = wander(robot.vx, 2.5)
   const vy = wander(robot.vy, 2.5)
   const horizontal = drift(robot.x, vx, 0, window.innerWidth - ROBOT_W)
@@ -145,7 +185,7 @@ function suck(cloud, nozzle) {
   return { ...cloud, sucked: 1 }
 }
 
-// Moves one cloud a little, then pulls it in if the robot's nozzle is over it
+// Moves one cloud a little, then removes it if the robot's nozzle is touching it
 function moveCloud(cloud, nozzle) {
   const vx = wander(cloud.vx, 3)
   const vy = wander(cloud.vy, 3)
@@ -157,7 +197,7 @@ function moveCloud(cloud, nozzle) {
   )
 }
 
-// One gas cloud: it fades in where it was released, drifts slowly, and shrinks as the robot pulls it in
+// One gas cloud: it fades in where it was released and drifts slowly
 function Cloud({ cloud }) {
   return (
     <div
@@ -187,10 +227,16 @@ function Cloud({ cloud }) {
   )
 }
 
-// The cleaner robot: a body, two spinning rotors and a suction nozzle underneath
-function Robot({ robot }) {
+// The cleaner robot: a body, two spinning rotors and a suction nozzle underneath. It can be dragged
+function Robot({ robot, onPointerDown, onPointerMove, onPointerUp }) {
   return (
-    <div style={{ position: 'absolute', left: robot.x, top: robot.y, width: ROBOT_W, height: ROBOT_H }}>
+    <div
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      style={{ position: 'absolute', left: robot.x, top: robot.y, width: ROBOT_W, height: ROBOT_H, pointerEvents: 'auto', cursor: 'grab', touchAction: 'none' }}
+    >
       <div style={{ position: 'absolute', left: 2, top: 4, width: 40, height: 6, background: '#607d8b', borderRadius: 3, animation: 'robot-flutter 0.15s linear infinite alternate' }} />
       <div style={{ position: 'absolute', left: 48, top: 4, width: 40, height: 6, background: '#607d8b', borderRadius: 3, animation: 'robot-flutter 0.15s linear infinite alternate' }} />
       <div style={{ position: 'absolute', left: 20, top: 12, width: 50, height: 26, background: '#cfd8dc', border: '2px solid #607d8b', borderRadius: 12 }} />
@@ -207,6 +253,7 @@ export default function PianoGame() {
   const [touches, setTouches] = useState(0)
   const [clouds, setClouds] = useState([])
   const [robot, setRobot] = useState(INITIAL_ROBOT)
+  const [docked, setDocked] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const [lastNote, setLastNote] = useState('')
   const [pressedMidi, setPressedMidi] = useState(null)
@@ -216,6 +263,8 @@ export default function PianoGame() {
   const busy = useRef(false)
   const nextCloudId = useRef(0)
   const robotRef = useRef(INITIAL_ROBOT)
+  const robotDrag = useRef(null)
+  const dockTimer = useRef(null)
   const elephantRef = useRef(null)
   const lastFartAt = useRef(null)
   const stepTimer = useRef(null)
@@ -227,14 +276,16 @@ export default function PianoGame() {
     return () => {
       clearTimeout(stepTimer.current)
       clearTimeout(pressTimer.current)
+      clearTimeout(dockTimer.current)
       audioRef.current?.close()
     }
   }, [])
 
-  // Every 50 milliseconds the robot flies a little, and the clouds drift and get pulled in by its nozzle
+  // Every 50 milliseconds the robot flies a little (unless it is held or locked), and the clouds drift and get removed by its nozzle
   useEffect(() => {
     const timer = setInterval(() => {
-      const next = moveRobot(robotRef.current)
+      const held = robotDrag.current !== null || dockTimer.current !== null
+      const next = held ? robotRef.current : moveRobot(robotRef.current)
       robotRef.current = next
       setRobot(next)
       const nozzle = { x: next.x + NOZZLE_X, y: next.y + NOZZLE_Y }
@@ -271,7 +322,7 @@ export default function PianoGame() {
     return () => clearTimeout(timer)
   }, [cloudCount])
 
-  // Browsers only allow sound after a click, so the audio is started on the first key click
+  // Browsers only allow sound after a click, so the audio is started on the first click
   function getAudio() {
     if (!audioRef.current) {
       audioRef.current = new (window.AudioContext || window.webkitAudioContext)()
@@ -304,6 +355,67 @@ export default function PianoGame() {
     ])
   }
 
+  // The spot where the elephant's fart comes out (its rear), in screen coordinates
+  function rearPoint() {
+    const rect = elephantRef.current?.getBoundingClientRect()
+    return rect ? { x: rect.left + 330, y: rect.top + 150 } : null
+  }
+
+  // The robot is locked on the elephant's rear: the elephant stops farting, and after 10 seconds the robot launches
+  function dock(rear) {
+    robotDrag.current = null
+    const next = { x: rear.x - NOZZLE_X, y: rear.y - NOZZLE_Y, vx: 0, vy: 0 }
+    robotRef.current = next
+    setRobot(next)
+    setDocked(true)
+    dockTimer.current = setTimeout(launch, DOCK_MS)
+  }
+
+  // The robot shoots away from the elephant like a rocket, with a swoosh
+  function launch() {
+    dockTimer.current = null
+    setDocked(false)
+    const rect = elephantRef.current?.getBoundingClientRect()
+    const current = robotRef.current
+    const from = rect ? { x: rect.left + ELEPHANT_W / 2, y: rect.top + ELEPHANT_H / 2 } : { x: current.x, y: current.y }
+    const dx = current.x + NOZZLE_X - from.x
+    const dy = current.y + NOZZLE_Y - from.y
+    const length = Math.hypot(dx, dy) || 1
+    const next = { ...current, vx: (dx / length) * LAUNCH_SPEED, vy: (dy / length) * LAUNCH_SPEED }
+    robotRef.current = next
+    setRobot(next)
+    playSwoosh(getAudio())
+  }
+
+  function handleRobotDown(event) {
+    // Picking the robot up cancels a lock, so it can be moved again
+    clearTimeout(dockTimer.current)
+    dockTimer.current = null
+    setDocked(false)
+    robotDrag.current = { offsetX: event.clientX - robotRef.current.x, offsetY: event.clientY - robotRef.current.y }
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  function handleRobotMove(event) {
+    if (!robotDrag.current) return
+    const next = {
+      x: clamp(event.clientX - robotDrag.current.offsetX, 0, window.innerWidth - ROBOT_W),
+      y: clamp(event.clientY - robotDrag.current.offsetY, 0, window.innerHeight - ROBOT_H),
+      vx: 0,
+      vy: 0,
+    }
+    robotRef.current = next
+    setRobot(next)
+    const rear = rearPoint()
+    if (rear && Math.hypot(next.x + NOZZLE_X - rear.x, next.y + NOZZLE_Y - rear.y) < DOCK_DISTANCE) {
+      dock(rear)
+    }
+  }
+
+  function handleRobotUp() {
+    robotDrag.current = null
+  }
+
   function playKey(key) {
     setTouches((count) => count + 1)
     playNote(getAudio(), key.midi)
@@ -332,11 +444,16 @@ export default function PianoGame() {
 
   function playAgain() {
     clearTimeout(stepTimer.current)
+    clearTimeout(dockTimer.current)
+    dockTimer.current = null
     lastFartAt.current = null
     setFaceColor(FACE)
     setCoughing(false)
     busy.current = false
     setClouds([])
+    setDocked(false)
+    robotRef.current = INITIAL_ROBOT
+    setRobot(INITIAL_ROBOT)
     setGameOver(false)
     setTouching(false)
     setTouches(0)
@@ -367,7 +484,7 @@ export default function PianoGame() {
             zIndex: 4,
           }}
         >
-          <JumpingElephant bouncing={!touching} fartRequest={touches} onFart={addCloud} faceColor={faceColor} />
+          <JumpingElephant bouncing={!touching} fartRequest={touches} onFart={addCloud} faceColor={faceColor} quiet={docked} />
           {coughing && (
             <span
               style={{
@@ -428,7 +545,7 @@ export default function PianoGame() {
 
       <p style={{ fontSize: 18, margin: '20px 0 0' }}>{lastNote ? `Last key played: ${lastNote}` : 'Click a key to hear it.'}</p>
 
-      {/* The air layer: the gas clouds and the cleaner robot, over the whole screen */}
+      {/* The air layer: the gas clouds and the cleaner robot, over the whole screen. Only the robot takes pointer input */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 40, pointerEvents: 'none', overflow: 'hidden' }}>
         <div
           style={{
@@ -442,7 +559,7 @@ export default function PianoGame() {
         {clouds.map((cloud) => (
           <Cloud key={cloud.id} cloud={cloud} />
         ))}
-        <Robot robot={robot} />
+        <Robot robot={robot} onPointerDown={handleRobotDown} onPointerMove={handleRobotMove} onPointerUp={handleRobotUp} />
       </div>
 
       {gameOver && (
