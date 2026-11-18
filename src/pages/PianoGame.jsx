@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import JumpingElephant from '../components/JumpingElephant.jsx'
-import { colors } from '../components/theme.js'
+import { buttonStyle, colors } from '../components/theme.js'
 
 const STAGE_W = 1000
 const STAGE_H = 660
@@ -18,6 +18,8 @@ const PIANO_TOP = 500
 const PIANO_LEFT = FEET_X
 const WHITE_PITCHES = [0, 2, 4, 5, 7, 9, 11]
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+// Each touch on a key makes one fart; after this many the air is full and the cowboy is choked
+const FARTS_TO_CHOKE = 10
 
 // Exact pitch of a key from its MIDI number: 69 is A4, which is 440 Hz
 function frequencyOf(midi) {
@@ -96,6 +98,8 @@ export default function PianoGame() {
   const [position, setPosition] = useState({ x: 230, y: 40 })
   const [lastNote, setLastNote] = useState('')
   const [pressedMidi, setPressedMidi] = useState(null)
+  const [farts, setFarts] = useState(0)
+  const [gameOver, setGameOver] = useState(false)
   const stageRef = useRef(null)
   const audioRef = useRef(null)
   const drag = useRef(null)
@@ -107,6 +111,13 @@ export default function PianoGame() {
       audioRef.current?.close()
     }
   }, [])
+
+  // The gas takes a few seconds to fill the screen, then the game is over
+  useEffect(() => {
+    if (farts < FARTS_TO_CHOKE) return undefined
+    const timer = setTimeout(() => setGameOver(true), 3000)
+    return () => clearTimeout(timer)
+  }, [farts])
 
   // Browsers only allow sound after a click, so the audio is started when the elephant is first grabbed
   function getAudio() {
@@ -123,6 +134,7 @@ export default function PianoGame() {
   }
 
   function handlePointerDown(event) {
+    if (gameOver) return
     getAudio()
     const point = stagePoint(event)
     drag.current = { offsetX: point.x - position.x, offsetY: point.y - position.y }
@@ -151,11 +163,20 @@ export default function PianoGame() {
   }
 
   function playKey(key) {
+    setFarts((count) => count + 1)
     playNote(getAudio(), key.midi)
     setLastNote(key.name)
     setPressedMidi(key.midi)
     clearTimeout(pressTimer.current)
     pressTimer.current = setTimeout(() => setPressedMidi(null), 250)
+  }
+
+  function playAgain() {
+    setFarts(0)
+    setGameOver(false)
+    setLastNote('')
+    setPressedMidi(null)
+    setPosition({ x: 230, y: 40 })
   }
 
   // The stick starts at the elephant's rear and its tip sits where the feet touch, so the key it points at is the key touched
@@ -187,7 +208,7 @@ export default function PianoGame() {
             cursor: 'grab',
           }}
         >
-          <JumpingElephant bouncing={false} />
+          <JumpingElephant bouncing={false} fartRequest={farts} />
         </div>
 
         <div
@@ -258,6 +279,30 @@ export default function PianoGame() {
       </div>
 
       <p style={{ fontSize: 18, margin: '20px 0 0' }}>{lastNote ? `Last key played: ${lastNote}` : 'Drag the elephant onto a key to hear it.'}</p>
+      {/* The yellow gas slowly spreads over the whole screen, one layer per fart */}
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 40,
+          pointerEvents: 'none',
+          background: 'radial-gradient(circle, rgba(245, 215, 66, 0.6), rgba(222, 184, 30, 0.95))',
+          opacity: Math.min(farts / FARTS_TO_CHOKE, 1),
+          transition: 'opacity 3s ease-in-out',
+        }}
+      />
+
+      {gameOver && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'grid', placeItems: 'center', background: 'rgba(31, 61, 46, 0.6)' }}>
+          <div style={{ background: colors.card, color: colors.ink, borderRadius: 16, padding: 32, maxWidth: 420, textAlign: 'center' }}>
+            <h2 style={{ fontFamily: 'Georgia, serif', margin: '0 0 12px' }}>Game over</h2>
+            <p style={{ margin: '0 0 20px' }}>The yellow gas has filled the air, and the cowboy is choked.</p>
+            <button type="button" style={buttonStyle} onClick={playAgain}>
+              Play again
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
