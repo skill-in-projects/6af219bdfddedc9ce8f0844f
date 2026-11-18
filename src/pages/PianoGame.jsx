@@ -21,6 +21,11 @@ const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 
 // Each fart leaves a cloud; after this many the air is full and the cowboy is choked
 const CLOUDS_TO_CHOKE = 10
 const START_SPOT = { x: 230, y: 40 }
+// The cowboy's face is red after a fart, then slowly fades to green
+const FACE = '#e0b08a'
+const RED = '#d62828'
+const GREEN = '#2a9d3f'
+const FACE_FADE_MS = 8000
 
 const gasCss = `
   @keyframes gas-in { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
@@ -86,6 +91,16 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max)
 }
 
+// The colour part of the way from one hex colour to another (t from 0 to 1)
+function mixColor(from, to, t) {
+  const channels = [1, 3, 5].map((start) => {
+    const a = parseInt(from.slice(start, start + 2), 16)
+    const b = parseInt(to.slice(start, start + 2), 16)
+    return Math.round(a + (b - a) * t)
+  })
+  return `#${channels.map((value) => value.toString(16).padStart(2, '0')).join('')}`
+}
+
 // A random place above the piano, where the elephant's feet do not reach any key
 function randomSpot() {
   return {
@@ -133,6 +148,9 @@ export default function PianoGame() {
   const busy = useRef(false)
   const nextCloudId = useRef(0)
   const elephantRef = useRef(null)
+  const lastFartAt = useRef(null)
+  const [faceColor, setFaceColor] = useState(FACE)
+  const [coughing, setCoughing] = useState(false)
   const stepTimer = useRef(null)
   const pressTimer = useRef(null)
 
@@ -143,6 +161,27 @@ export default function PianoGame() {
       audioRef.current?.close()
     }
   }, [])
+
+  // The face fades from red back to green over a few seconds after each fart
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (lastFartAt.current === null) return
+      const t = Math.min((Date.now() - lastFartAt.current) / FACE_FADE_MS, 1)
+      setFaceColor(mixColor(RED, GREEN, t))
+    }, 200)
+    return () => clearInterval(timer)
+  }, [])
+
+  // The cowboy coughs, and the coughs come more often as the gas builds up
+  useEffect(() => {
+    if (cloudCount === 0) return undefined
+    const interval = Math.max(400, 2400 - cloudCount * 200)
+    const timer = setInterval(() => {
+      setCoughing(true)
+      setTimeout(() => setCoughing(false), 600)
+    }, interval)
+    return () => clearInterval(timer)
+  }, [cloudCount])
 
   // The gas takes a few seconds to fill the screen, then the game is over
   const cloudCount = clouds.length
@@ -168,6 +207,8 @@ export default function PianoGame() {
     const x = (rect?.left ?? 0) + 330 + (Math.random() - 0.5) * 120
     const y = (rect?.top ?? 0) + 150 + (Math.random() - 0.5) * 80
     const id = nextCloudId.current++
+    lastFartAt.current = Date.now()
+    setFaceColor(RED)
     setClouds((list) => [
       ...list,
       { id, x: x - size / 2, y: y - size * 0.3, size, drift: 12 + Math.random() * 10 },
@@ -202,6 +243,9 @@ export default function PianoGame() {
 
   function playAgain() {
     clearTimeout(stepTimer.current)
+    lastFartAt.current = null
+    setFaceColor(FACE)
+    setCoughing(false)
     busy.current = false
     setClouds([])
     setGameOver(false)
@@ -234,7 +278,24 @@ export default function PianoGame() {
             zIndex: 4,
           }}
         >
-          <JumpingElephant bouncing={!touching} fartRequest={touches} onFart={addCloud} />
+          <JumpingElephant bouncing={!touching} fartRequest={touches} onFart={addCloud} faceColor={faceColor} />
+          {coughing && (
+            <span
+              style={{
+                position: 'absolute',
+                left: 250,
+                top: 10,
+                background: '#ffffff',
+                color: colors.ink,
+                borderRadius: 10,
+                padding: '4px 10px',
+                fontWeight: 700,
+                pointerEvents: 'none',
+              }}
+            >
+              Cough!
+            </span>
+          )}
         </div>
 
         <div
