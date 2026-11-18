@@ -15,6 +15,18 @@ const selectStyle = {
   color: colors.ink,
 }
 
+const HATS = ['#6b4423', '#2f2a24', '#8a5a2b', '#d8c3a5']
+
+// Each cowboy gets its own shirt and jeans colors (spread around the color wheel by id) and one of the hats
+function lookFor(cowboy) {
+  const hue = (cowboy.id * 137.508) % 360
+  return {
+    shirt: `hsl(${hue} 65% 45%)`,
+    jeans: `hsl(${(hue + 180) % 360} 35% 35%)`,
+    hat: HATS[cowboy.id % HATS.length],
+  }
+}
+
 function apiUrl(path) {
   return `${window.CONFIG?.API_URL ?? ''}${path}`
 }
@@ -100,7 +112,7 @@ export default function CowboyGame() {
       )}
 
       <div style={{ marginTop: 32 }}>
-        <JumpingElephant onPuffClick={handleRaise} />
+        <JumpingElephant onPuffClick={handleRaise} look={selected ? lookFor(selected) : undefined} />
       </div>
 
       {message && <p style={{ color: colors.onPaperAccent, margin: '20px 0 0' }}>{message}</p>}

@@ -73,9 +73,13 @@ function Block({ x, y, z, w, h, d, color }) {
 // The puff cloud is visible for about this long after each landing (0.9s animation plus the 0.24s delay)
 const PUFF_MS = 1150
 
+// Colors of the cowboy on the elephant's back
+const DEFAULT_LOOK = { shirt: SHIRT, jeans: JEANS, hat: HAT }
+
 // A grey elephant built from boxes, jumping in place. Facing left. A cowboy rides on its back.
 // onPuffClick runs when the visitor clicks while the puff cloud is showing.
-export default function JumpingElephant({ onPuffClick }) {
+// look sets the cowboy's shirt, jeans and hat colors.
+export default function JumpingElephant({ onPuffClick, look = DEFAULT_LOOK }) {
   const audioRef = useRef(null)
   const pinkTimer = useRef(null)
   const puffTimer = useRef(null)
@@ -200,14 +204,14 @@ export default function JumpingElephant({ onPuffClick }) {
         <Block x={-110} y={-110} z={46} w={10} h={10} d={4} color={EYE} />
         <Block x={-125} y={-80} z={46} w={30} h={4} d={3} color={EYE} />
         <Block x={-150} y={-35} z={40} w={8} h={30} d={8} color={TUSK} />
-        <Block x={10} y={-110} z={0} w={56} h={20} d={44} color={JEANS} />
-        <Block x={10} y={-140} z={0} w={40} h={40} d={28} color={SHIRT} />
+        <Block x={10} y={-110} z={0} w={56} h={20} d={44} color={look.jeans} />
+        <Block x={10} y={-140} z={0} w={40} h={40} d={28} color={look.shirt} />
         <Block x={10} y={-175} z={0} w={28} h={30} d={28} color={SKIN} />
         <Block x={4} y={-180} z={15} w={4} h={4} d={2} color={EYE} />
         <Block x={16} y={-180} z={15} w={4} h={4} d={2} color={EYE} />
         <Block x={10} y={-166} z={15} w={10} h={2} d={2} color={EYE} />
-        <Block x={10} y={-189} z={0} w={56} h={5} d={56} color={HAT} />
-        <Block x={10} y={-198} z={0} w={28} h={14} d={28} color={HAT} />
+        <Block x={10} y={-189} z={0} w={56} h={5} d={56} color={look.hat} />
+        <Block x={10} y={-198} z={0} w={28} h={14} d={28} color={look.hat} />
       </div>
       <div
         className="elephant-shadow"
