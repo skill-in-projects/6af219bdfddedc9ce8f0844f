@@ -7,6 +7,7 @@ import FindOnMap from './pages/FindOnMap.jsx'
 import Beatles from './pages/Beatles.jsx'
 import CowboyGame from './pages/CowboyGame.jsx'
 import Chatbot from './pages/Chatbot.jsx'
+import PianoGame from './pages/PianoGame.jsx'
 import { sampleMemories } from './data.js'
 import { colors } from './components/theme.js'
 
@@ -53,6 +54,9 @@ export default function App() {
             <Link to="/chat" style={{ color: colors.onPaper }}>
               Chatbot
             </Link>
+            <Link to="/piano" style={{ color: colors.onPaper }}>
+              Piano
+            </Link>
           </div>
         </nav>
 
@@ -64,6 +68,7 @@ export default function App() {
           <Route path="/beatles" element={<Beatles />} />
           <Route path="/game" element={<CowboyGame />} />
           <Route path="/chat" element={<Chatbot />} />
+          <Route path="/piano" element={<PianoGame />} />
         </Routes>
       </div>
     </HashRouter>
