@@ -10,6 +10,7 @@ A private book where a person writes short memories (title, date, mood and a few
 - **New memory** (`/#/new`): a form to write a memory (title, date, mood, text). Submitting adds it to the top of the list and opens Memories.
 - **Find on map** (`/#/map`): type an address, press "Show on map", and see the address with a map image and a red marker on it. The map image cannot be dragged or zoomed.
 - **Cowboy game** (`/#/game`): pick a cowboy from a list (names and addresses from the cowboys table) and see their salary. The elephant jumps here too. Each click while its puff cloud is showing gives the chosen cowboy a 10% raise, saved in the database. With no cowboy chosen, the click shows "Choose a cowboy first."
+- **Chatbot** (`/#/chat`): type a question and get a reply from Gemini. The chatbot's main topic is the digestive system of elephants, and it also answers other questions briefly. Each question uses credits. The last 10 turns are sent with each question so replies follow the conversation.
 - **Beatles** (`/#/beatles`): a list of favorite Beatles songs, starting with three. Type a song title and press "Add song" to add it to the list. The list is kept in the page only, so it resets on reload.
 
 ## API endpoints
@@ -20,6 +21,7 @@ A private book where a person writes short memories (title, date, mood and a few
 
 - `GET /api/cowboys`: every row of the `cowboys` table (name, address, belt size, salary). Used by the **Cowboy game** page.
 - `POST /api/cowboys/{id}/raise`: gives that cowboy a 10% raise in the database and returns the new salary. Used by the **Cowboy game** page on each click during the puff.
+- `POST /api/chat`: sends a question and the earlier turns to Gemini and returns one reply. Used by the **Chatbot** page. Each question uses credits.
 
 Memories are still sample data in `src/data.js`.
 

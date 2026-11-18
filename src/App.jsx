@@ -6,6 +6,7 @@ import NewMemory from './pages/NewMemory.jsx'
 import FindOnMap from './pages/FindOnMap.jsx'
 import Beatles from './pages/Beatles.jsx'
 import CowboyGame from './pages/CowboyGame.jsx'
+import Chatbot from './pages/Chatbot.jsx'
 import { sampleMemories } from './data.js'
 import { colors } from './components/theme.js'
 
@@ -49,6 +50,9 @@ export default function App() {
             <Link to="/game" style={{ color: colors.onPaper }}>
               Cowboy game
             </Link>
+            <Link to="/chat" style={{ color: colors.onPaper }}>
+              Chatbot
+            </Link>
           </div>
         </nav>
 
@@ -59,6 +63,7 @@ export default function App() {
           <Route path="/map" element={<FindOnMap />} />
           <Route path="/beatles" element={<Beatles />} />
           <Route path="/game" element={<CowboyGame />} />
+          <Route path="/chat" element={<Chatbot />} />
         </Routes>
       </div>
     </HashRouter>
