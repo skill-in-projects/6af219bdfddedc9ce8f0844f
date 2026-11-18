@@ -70,10 +70,16 @@ function Block({ x, y, z, w, h, d, color }) {
   )
 }
 
+// The puff cloud is visible for about this long after each landing (0.9s animation plus the 0.24s delay)
+const PUFF_MS = 1150
+
 // A grey elephant built from boxes, jumping in place. Facing left. A cowboy rides on its back.
-export default function JumpingElephant() {
+// onPuffClick runs when the visitor clicks while the puff cloud is showing.
+export default function JumpingElephant({ onPuffClick }) {
   const audioRef = useRef(null)
   const pinkTimer = useRef(null)
+  const puffTimer = useRef(null)
+  const puffing = useRef(false)
   const [farts, setFarts] = useState(0)
   const [pink, setPink] = useState(false)
   const skin = pink ? PINK : BODY
@@ -92,6 +98,7 @@ export default function JumpingElephant() {
       window.removeEventListener('pointerdown', unlockAudio)
       window.removeEventListener('keydown', unlockAudio)
       clearTimeout(pinkTimer.current)
+      clearTimeout(puffTimer.current)
     }
   }, [])
 
@@ -145,10 +152,27 @@ export default function JumpingElephant() {
     setPink(true)
     clearTimeout(pinkTimer.current)
     pinkTimer.current = setTimeout(() => setPink(false), 900)
+    puffing.current = true
+    clearTimeout(puffTimer.current)
+    puffTimer.current = setTimeout(() => {
+      puffing.current = false
+    }, PUFF_MS)
+  }
+
+  // With reduced motion the puff cloud is hidden, so clicks on it do not count
+  function handleClick() {
+    if (!puffing.current || !onPuffClick) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    onPuffClick()
   }
 
   return (
-    <div role="img" aria-label="A grey 3D elephant jumping with a cowboy on its back" style={{ position: 'relative', width: 420, height: 380, margin: '0 auto', perspective: 800 }}>
+    <div
+      role="img"
+      aria-label="A grey 3D elephant jumping with a cowboy on its back"
+      onClick={handleClick}
+      style={{ position: 'relative', width: 420, height: 380, margin: '0 auto', perspective: 800 }}
+    >
       <style>{css}</style>
       <div
         className="elephant-scene"

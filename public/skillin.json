@@ -6,6 +6,7 @@
     {"name": "Memories", "path": "/#/memories"},
     {"name": "New memory", "path": "/#/new"},
     {"name": "Find on map", "path": "/#/map"},
-    {"name": "Beatles", "path": "/#/beatles"}
+    {"name": "Beatles", "path": "/#/beatles"},
+    {"name": "Cowboy game", "path": "/#/game"}
   ]
 }
