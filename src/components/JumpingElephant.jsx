@@ -37,6 +37,8 @@ const css = `
     0% { opacity: 0.9; transform: translate(0, 0) scale(0.4); }
     100% { opacity: 0; transform: translate(50px, -36px) scale(2.2); }
   }
+  .elephant-still .elephant-scene { animation: none; }
+  .elephant-still .elephant-shadow { animation: none; transform: translateX(-50%); opacity: 0.35; }
   @media (prefers-reduced-motion: reduce) {
     .elephant-scene, .elephant-shadow { animation: none; }
     .elephant-puff { display: none; }
@@ -79,7 +81,7 @@ const DEFAULT_LOOK = { shirt: SHIRT, jeans: JEANS, hat: HAT }
 // A grey elephant built from boxes, jumping in place. Facing left. A cowboy rides on its back.
 // onPuffClick runs when the visitor clicks while the puff cloud is showing.
 // look sets the cowboy's shirt, jeans and hat colors.
-export default function JumpingElephant({ onPuffClick, look = DEFAULT_LOOK }) {
+export default function JumpingElephant({ onPuffClick, look = DEFAULT_LOOK, bouncing = true }) {
   const audioRef = useRef(null)
   const pinkTimer = useRef(null)
   const puffTimer = useRef(null)
@@ -175,6 +177,7 @@ export default function JumpingElephant({ onPuffClick, look = DEFAULT_LOOK }) {
       role="img"
       aria-label="A grey 3D elephant jumping with a cowboy on its back"
       onClick={handleClick}
+      className={bouncing ? undefined : 'elephant-still'}
       style={{ position: 'relative', width: 420, height: 380, margin: '0 auto', perspective: 800 }}
     >
       <style>{css}</style>

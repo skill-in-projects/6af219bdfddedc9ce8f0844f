@@ -2,19 +2,20 @@ import { useEffect, useRef, useState } from 'react'
 import JumpingElephant from '../components/JumpingElephant.jsx'
 import { colors } from '../components/theme.js'
 
-const STAGE_W = 880
+const STAGE_W = 1000
 const STAGE_H = 660
 const ELEPHANT_W = 420
 const ELEPHANT_H = 380
 // Where the elephant's feet are, measured from its top-left corner
 const FEET_X = 210
 const FEET_Y = 328
-const WHITE_W = 56
+// The piano spans exactly the positions the feet can reach, so every key, including the edge ones, can be touched
+const WHITE_W = (STAGE_W - 2 * FEET_X) / 14
 const WHITE_H = 130
-const BLACK_W = 34
+const BLACK_W = 24
 const BLACK_H = 80
 const PIANO_TOP = 500
-const PIANO_LEFT = (STAGE_W - 14 * WHITE_W) / 2
+const PIANO_LEFT = FEET_X
 const WHITE_PITCHES = [0, 2, 4, 5, 7, 9, 11]
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
@@ -164,7 +165,7 @@ export default function PianoGame() {
   const stickAngle = Math.atan2(stickEnd.y - stickStart.y, stickEnd.x - stickStart.x)
 
   return (
-    <main style={{ maxWidth: 920, margin: '0 auto', padding: '40px 24px', textAlign: 'center' }}>
+    <main style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 24px', textAlign: 'center' }}>
       <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 36, margin: '0 0 8px' }}>Piano elephant</h1>
       <p style={{ color: colors.onPaperMuted, margin: '0 0 24px' }}>
         Drag the elephant so its feet land on a piano key. The key plays, and the elephant jumps to a new spot.
@@ -186,7 +187,7 @@ export default function PianoGame() {
             cursor: 'grab',
           }}
         >
-          <JumpingElephant />
+          <JumpingElephant bouncing={false} />
         </div>
 
         <div
