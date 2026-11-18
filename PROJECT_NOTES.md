@@ -21,12 +21,14 @@ A private book where a person writes short memories (title, date, mood and a few
 
 - `GET /api/cowboys`: every row of the `cowboys` table (name, address, belt size, salary). Used by the **Cowboy game** page.
 - `POST /api/cowboys/{id}/raise`: gives that cowboy a 10% raise in the database and returns the new salary. Used by the **Cowboy game** page on each click during the puff.
+- `GET /api/candidates`: the 10 made-up candidates (name, headline, city, email). No page uses it yet.
 - `POST /api/chat`: sends a question and the earlier turns to Gemini and returns one reply. Used by the **Chatbot** page. Each question uses credits.
 
 Memories are still sample data in `src/data.js`.
 
 ## Database tables
 - `cowboys` (id, name, address, belt_size, salary): created when the backend starts. When the table is empty it gets 50 sample rows, so restarts do not add more.
+- `candidates` (id, full_name, headline, city, email), with `candidate_experiences`, `candidate_skills`, `candidate_education` and `candidate_certifications` linked to it. Shaped like a CV. Created when the backend starts, with 10 made-up people. The names, companies and schools are invented; no real person's details are stored.
 
 ## Trial state (not saved yet)
 - The **New memory** form: a new memory only lasts until the page reloads. The screen shows "Not saved yet: upgrade to keep your changes". When saving turns on after upgrading, store new memories in the database and load them from there.
