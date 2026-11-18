@@ -17,7 +17,12 @@ A private book where a person writes short memories (title, date, mood and a few
 - `GET /api/jokes/random`: asks Gemini for one short joke. Used by the "Tell me a joke" button on Home. Each click uses credits.
 - `GET /api/dinner/ideas?ingredients=...`: asks Gemini for three dinner ideas from the listed fridge items (max 300 characters). Used by the "Suggest 3 dinners" section on Home. Each click uses credits.
 
+- `GET /api/cowboys`: every row of the `cowboys` table (name, address, belt size, salary). No page uses it yet.
+
 Memories are still sample data in `src/data.js`.
+
+## Database tables
+- `cowboys` (id, name, address, belt_size, salary): created when the backend starts. When the table is empty it gets 50 sample rows, so restarts do not add more.
 
 ## Trial state (not saved yet)
 - The **New memory** form: a new memory only lasts until the page reloads. The screen shows "Not saved yet: upgrade to keep your changes". When saving turns on after upgrading, store new memories in the database and load them from there.
@@ -28,3 +33,4 @@ Memories are still sample data in `src/data.js`.
 - Later: the user asked for a dark green background. Cards stay white; text on the background is cream (colors in `src/components/theme.js`).
 - Moods offered: Happy, Calm, Thoughtful, Excited, Sad.
 - Map page: the user asked for an address on a map. Only a static map image is possible here, so it is not interactive.
+- Cowboys table: the user asked for a table named "cowbos" with 50 mock rows (name, address, belt size, salary). It is named `cowboys` (read as a typo).
