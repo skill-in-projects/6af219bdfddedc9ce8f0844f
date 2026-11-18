@@ -157,6 +157,12 @@ export default function PianoGame() {
     pressTimer.current = setTimeout(() => setPressedMidi(null), 250)
   }
 
+  // The stick starts at the elephant's rear and its tip sits where the feet touch, so the key it points at is the key touched
+  const stickStart = { x: position.x + 322, y: position.y + 200 }
+  const stickEnd = { x: position.x + FEET_X, y: position.y + FEET_Y }
+  const stickLength = Math.hypot(stickEnd.x - stickStart.x, stickEnd.y - stickStart.y)
+  const stickAngle = Math.atan2(stickEnd.y - stickStart.y, stickEnd.x - stickStart.x)
+
   return (
     <main style={{ maxWidth: 920, margin: '0 auto', padding: '40px 24px', textAlign: 'center' }}>
       <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 36, margin: '0 0 8px' }}>Piano elephant</h1>
@@ -182,6 +188,36 @@ export default function PianoGame() {
         >
           <JumpingElephant />
         </div>
+
+        <div
+          style={{
+            position: 'absolute',
+            left: stickStart.x,
+            top: stickStart.y,
+            width: stickLength,
+            height: 6,
+            marginTop: -3,
+            background: '#6b4423',
+            borderRadius: 3,
+            transformOrigin: '0 50%',
+            transform: `rotate(${stickAngle}rad)`,
+            pointerEvents: 'none',
+            zIndex: 3,
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            left: stickEnd.x - 6,
+            top: stickEnd.y - 6,
+            width: 12,
+            height: 12,
+            borderRadius: '50%',
+            background: '#f0b27a',
+            pointerEvents: 'none',
+            zIndex: 3,
+          }}
+        />
 
         <div
           style={{
