@@ -196,6 +196,8 @@ export default function PianoGame() {
     return () => clearInterval(timer)
   }, [])
 
+  const cloudCount = clouds.length
+
   // The cowboy coughs, and the coughs come more often as the gas builds up
   useEffect(() => {
     if (cloudCount === 0) return undefined
@@ -208,7 +210,6 @@ export default function PianoGame() {
   }, [cloudCount])
 
   // The gas takes a few seconds to fill the screen, then the game is over
-  const cloudCount = clouds.length
   useEffect(() => {
     if (cloudCount < CLOUDS_TO_CHOKE) return undefined
     const timer = setTimeout(() => setGameOver(true), 3000)
