@@ -483,6 +483,8 @@ export default function PianoGame() {
       setFeedback('Found it!')
       setScore((count) => count + 1)
       setTarget(randomWhiteMidi())
+      // Finding the key puts the piano back in its normal order
+      setKeys(placeKeys(IDENTITY_SLOTS))
     } else {
       setFeedback('Not that one. Keep looking.')
     }
