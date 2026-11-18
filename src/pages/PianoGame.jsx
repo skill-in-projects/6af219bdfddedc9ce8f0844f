@@ -67,6 +67,8 @@ function buildKeys() {
 }
 
 const KEYS = buildKeys()
+// The La keys are the white keys named A, in every octave
+const LA_KEYS = KEYS.filter((key) => !key.black && key.midi % 12 === 9)
 
 // A piano-like tone: the exact pitch plus a quieter octave above, fading out over about 1.6 seconds
 function playNote(ctx, midi) {
@@ -266,6 +268,7 @@ export default function PianoGame() {
   const robotDrag = useRef(null)
   const dockTimer = useRef(null)
   const elephantRef = useRef(null)
+  const stageRef = useRef(null)
   const lastFartAt = useRef(null)
   const stepTimer = useRef(null)
   const pressTimer = useRef(null)
@@ -361,10 +364,11 @@ export default function PianoGame() {
     return rect ? { x: rect.left + 330, y: rect.top + 150 } : null
   }
 
-  // The robot is locked on the elephant's rear: the elephant stops farting, and after 10 seconds the robot launches
-  function dock(rear) {
+  // The robot is locked in place (on the elephant's rear, or on a La key): the elephant stops farting,
+  // and after 10 seconds the robot launches
+  function dockAt(x, y) {
     robotDrag.current = null
-    const next = { x: rear.x - NOZZLE_X, y: rear.y - NOZZLE_Y, vx: 0, vy: 0 }
+    const next = { x, y, vx: 0, vy: 0 }
     robotRef.current = next
     setRobot(next)
     setDocked(true)
@@ -406,10 +410,22 @@ export default function PianoGame() {
     }
     robotRef.current = next
     setRobot(next)
+    const nozzleX = next.x + NOZZLE_X
+    const nozzleY = next.y + NOZZLE_Y
     const rear = rearPoint()
-    if (rear && Math.hypot(next.x + NOZZLE_X - rear.x, next.y + NOZZLE_Y - rear.y) < DOCK_DISTANCE) {
-      dock(rear)
+    if (rear && Math.hypot(nozzleX - rear.x, nozzleY - rear.y) < DOCK_DISTANCE) {
+      dockAt(rear.x - NOZZLE_X, rear.y - NOZZLE_Y)
+      return
     }
+    // Hovering just above any La key locks the robot onto that key
+    const stage = stageRef.current?.getBoundingClientRect()
+    if (!stage) return
+    const localX = nozzleX - stage.left
+    const localY = nozzleY - stage.top
+    const la = LA_KEYS.find(
+      (key) => localX >= key.x && localX <= key.x + key.w && localY >= PIANO_TOP - DOCK_DISTANCE && localY <= PIANO_TOP + DOCK_DISTANCE,
+    )
+    if (la) dockAt(stage.left + la.x + la.w / 2 - NOZZLE_X, stage.top + PIANO_TOP - NOZZLE_Y)
   }
 
   function handleRobotUp() {
@@ -470,7 +486,7 @@ export default function PianoGame() {
         Click a piano key. The elephant comes down, plays the key, and jumps back up.
       </p>
 
-      <div style={{ position: 'relative', width: STAGE_W, height: STAGE_H, maxWidth: '100%', margin: '0 auto' }}>
+      <div ref={stageRef} style={{ position: 'relative', width: STAGE_W, height: STAGE_H, maxWidth: '100%', margin: '0 auto' }}>
         <div
           ref={elephantRef}
           style={{
