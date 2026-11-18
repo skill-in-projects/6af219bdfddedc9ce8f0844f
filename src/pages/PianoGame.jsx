@@ -36,7 +36,6 @@ const INITIAL_ROBOT = { x: 120, y: 160, vx: 1.5, vy: 0.8 }
 const gasCss = `
   @keyframes gas-in { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
   @keyframes gas-drift { from { transform: translate(-30px, 10px); } to { transform: translate(30px, -15px); } }
-  @keyframes clean-puff { from { opacity: 0.9; transform: scale(0.4); } to { opacity: 0; transform: scale(2.4) translateY(-20px); } }
   @keyframes robot-flutter { from { transform: scaleX(1); } to { transform: scaleX(-1); } }
 `
 
@@ -138,12 +137,18 @@ function moveRobot(robot) {
   return { x: horizontal.position, y: vertical.position, vx: horizontal.velocity, vy: vertical.velocity }
 }
 
-// The robot's nozzle pulls in a cloud it passes over. A cloud is gone once it is fully pulled in
+// The robot's nozzle pulls in a gas cloud it passes over: the cloud is drawn toward the nozzle and shrinks away.
+// A cloud is gone once it is fully pulled in
 function suck(cloud, nozzle) {
   const centerX = cloud.x + cloud.size / 2
   const centerY = cloud.y + cloud.size * 0.3
-  if (Math.hypot(centerX - nozzle.x, centerY - nozzle.y) > cloud.size * 0.45) return cloud
-  return { ...cloud, sucked: Math.min(cloud.sucked + 0.03, 1) }
+  if (Math.hypot(centerX - nozzle.x, centerY - nozzle.y) > cloud.size * 0.6) return cloud
+  return {
+    ...cloud,
+    x: cloud.x + (nozzle.x - centerX) * 0.05,
+    y: cloud.y + (nozzle.y - centerY) * 0.05,
+    sucked: Math.min(cloud.sucked + 0.04, 1),
+  }
 }
 
 // Moves one cloud a little, then pulls it in if the robot's nozzle is over it
@@ -208,7 +213,6 @@ export default function PianoGame() {
   const [touches, setTouches] = useState(0)
   const [clouds, setClouds] = useState([])
   const [robot, setRobot] = useState(INITIAL_ROBOT)
-  const [puffs, setPuffs] = useState([])
   const [gameOver, setGameOver] = useState(false)
   const [lastNote, setLastNote] = useState('')
   const [pressedMidi, setPressedMidi] = useState(null)
@@ -217,7 +221,6 @@ export default function PianoGame() {
   const audioRef = useRef(null)
   const busy = useRef(false)
   const nextCloudId = useRef(0)
-  const nextPuffId = useRef(0)
   const robotRef = useRef(INITIAL_ROBOT)
   const elephantRef = useRef(null)
   const lastFartAt = useRef(null)
@@ -243,17 +246,6 @@ export default function PianoGame() {
       const nozzle = { x: next.x + NOZZLE_X, y: next.y + NOZZLE_Y }
       setClouds((list) => (list.length === 0 ? list : list.map((cloud) => moveCloud(cloud, nozzle)).filter((cloud) => cloud.sucked < 1)))
     }, 50)
-    return () => clearInterval(timer)
-  }, [])
-
-  // The robot puffs out clean air every few seconds. It is slower than the elephant's farts
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const id = nextPuffId.current++
-      const current = robotRef.current
-      setPuffs((list) => [...list, { id, x: current.x + NOZZLE_X, y: current.y + NOZZLE_Y }])
-      setTimeout(() => setPuffs((list) => list.filter((puff) => puff.id !== id)), 2000)
-    }, 3500)
     return () => clearInterval(timer)
   }, [])
 
@@ -351,7 +343,6 @@ export default function PianoGame() {
     setCoughing(false)
     busy.current = false
     setClouds([])
-    setPuffs([])
     setGameOver(false)
     setTouching(false)
     setTouches(0)
@@ -443,7 +434,7 @@ export default function PianoGame() {
 
       <p style={{ fontSize: 18, margin: '20px 0 0' }}>{lastNote ? `Last key played: ${lastNote}` : 'Click a key to hear it.'}</p>
 
-      {/* The air layer: gas clouds, the cleaner robot and its clean puffs, over the whole screen */}
+      {/* The air layer: the gas clouds and the cleaner robot, over the whole screen */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 40, pointerEvents: 'none', overflow: 'hidden' }}>
         <div
           style={{
@@ -456,21 +447,6 @@ export default function PianoGame() {
         />
         {clouds.map((cloud) => (
           <Cloud key={cloud.id} cloud={cloud} />
-        ))}
-        {puffs.map((puff) => (
-          <div
-            key={puff.id}
-            style={{
-              position: 'absolute',
-              left: puff.x - 30,
-              top: puff.y,
-              width: 60,
-              height: 60,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0))',
-              animation: 'clean-puff 2s ease-out forwards',
-            }}
-          />
         ))}
         <Robot robot={robot} />
       </div>
