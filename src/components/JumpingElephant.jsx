@@ -199,11 +199,7 @@ export default function JumpingElephant({ onPuffClick, look = DEFAULT_LOOK, boun
         onAnimationIteration={handleLanding}
         style={{ position: 'absolute', inset: 0, transformStyle: 'preserve-3d' }}
       >
-        {[0, 1, 2].map((puff) =>
-          farts > 0 ? (
-            <span key={`${farts}-${puff}`} className="elephant-puff" style={{ animationDelay: `${puff * 0.12}s` }} />
-          ) : null,
-        )}
+        {farts > 0 ? <span key={farts} className="elephant-puff" /> : null}
         <Block x={0} y={-40} z={0} w={200} h={120} d={120} color={skin} />
         <Block x={-125} y={-95} z={0} w={90} h={90} d={90} color={skin} />
         <Block x={-175} y={-35} z={0} w={28} h={50} d={28} color={skin} />
