@@ -67,8 +67,35 @@ function buildKeys() {
 }
 
 const KEYS = buildKeys()
-// The La keys are the white keys named A, in every octave
-const LA_KEYS = KEYS.filter((key) => !key.black && key.midi % 12 === 9)
+// The white keys in order from C4 to B5, and the slot each key starts in
+const WHITE_MIDIS = KEYS.filter((key) => !key.black).map((key) => key.midi)
+const IDENTITY_SLOTS = Object.fromEntries(WHITE_MIDIS.map((midi, slot) => [midi, slot]))
+
+// Puts every key into its slot. A black key sits on the right edge of the white key just before it
+function placeKeys(slots) {
+  return KEYS.map((key) => {
+    if (!key.black) return { ...key, x: PIANO_LEFT + slots[key.midi] * WHITE_W }
+    return { ...key, x: PIANO_LEFT + (slots[key.midi - 1] + 1) * WHITE_W - BLACK_W / 2 }
+  })
+}
+
+// A random order for the white keys
+function shuffledSlots() {
+  const order = [...WHITE_MIDIS]
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[order[i], order[j]] = [order[j], order[i]]
+  }
+  return Object.fromEntries(order.map((midi, slot) => [midi, slot]))
+}
+
+function randomWhiteMidi() {
+  return WHITE_MIDIS[Math.floor(Math.random() * WHITE_MIDIS.length)]
+}
+
+function noteName(midi) {
+  return KEYS.find((key) => key.midi === midi).name
+}
 
 // A piano-like tone: the exact pitch plus a quieter octave above, fading out over about 1.6 seconds
 function playNote(ctx, midi) {
@@ -256,6 +283,10 @@ export default function PianoGame() {
   const [clouds, setClouds] = useState([])
   const [robot, setRobot] = useState(INITIAL_ROBOT)
   const [docked, setDocked] = useState(false)
+  const [keys, setKeys] = useState(() => placeKeys(IDENTITY_SLOTS))
+  const [target, setTarget] = useState(randomWhiteMidi)
+  const [score, setScore] = useState(0)
+  const [feedback, setFeedback] = useState('')
   const [gameOver, setGameOver] = useState(false)
   const [lastNote, setLastNote] = useState('')
   const [pressedMidi, setPressedMidi] = useState(null)
@@ -343,6 +374,8 @@ export default function PianoGame() {
     const id = nextCloudId.current++
     lastFartAt.current = Date.now()
     setFaceColor(RED)
+    // Every fart mixes the piano keys up again
+    setKeys(placeKeys(shuffledSlots()))
     setClouds((list) => [
       ...list,
       {
@@ -422,7 +455,9 @@ export default function PianoGame() {
     if (!stage) return
     const localX = nozzleX - stage.left
     const localY = nozzleY - stage.top
-    const la = LA_KEYS.find(
+    const la = keys
+      .filter((key) => !key.black && key.midi % 12 === 9)
+      .find(
       (key) => localX >= key.x && localX <= key.x + key.w && localY >= PIANO_TOP - DOCK_DISTANCE && localY <= PIANO_TOP + DOCK_DISTANCE,
     )
     if (la) dockAt(stage.left + la.x + la.w / 2 - NOZZLE_X, stage.top + PIANO_TOP - NOZZLE_Y)
@@ -444,6 +479,13 @@ export default function PianoGame() {
   // Clicking a key: the elephant comes down with its feet on the key, plays it, then jumps back up
   function handleKey(key) {
     if (busy.current || gameOver) return
+    if (key.midi === target) {
+      setFeedback('Found it!')
+      setScore((count) => count + 1)
+      setTarget(randomWhiteMidi())
+    } else {
+      setFeedback('Not that one. Keep looking.')
+    }
     busy.current = true
     setPos({ x: clamp(key.x + key.w / 2 - FEET_X, 0, STAGE_W - ELEPHANT_W), y: PIANO_TOP - FEET_Y })
     stepTimer.current = setTimeout(() => {
@@ -460,6 +502,10 @@ export default function PianoGame() {
 
   function playAgain() {
     clearTimeout(stepTimer.current)
+    setKeys(placeKeys(IDENTITY_SLOTS))
+    setTarget(randomWhiteMidi())
+    setScore(0)
+    setFeedback('')
     clearTimeout(dockTimer.current)
     dockTimer.current = null
     lastFartAt.current = null
@@ -531,7 +577,7 @@ export default function PianoGame() {
             borderRadius: 10,
           }}
         />
-        {KEYS.map((key) => (
+        {keys.map((key) => (
           <div
             key={key.midi}
             onClick={() => handleKey(key)}
@@ -559,7 +605,10 @@ export default function PianoGame() {
         ))}
       </div>
 
-      <p style={{ fontSize: 18, margin: '20px 0 0' }}>{lastNote ? `Last key played: ${lastNote}` : 'Click a key to hear it.'}</p>
+      <p style={{ fontSize: 18, margin: '20px 0 0' }}>
+        Find the key: <strong>{noteName(target)}</strong> · Found: {score}
+      </p>
+      <p style={{ margin: '8px 0 0', color: colors.onPaperAccent }}>{feedback || (lastNote ? `Last key played: ${lastNote}` : 'Click a key to hear it.')}</p>
 
       {/* The air layer: the gas clouds and the cleaner robot, over the whole screen. Only the robot takes pointer input */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 40, pointerEvents: 'none', overflow: 'hidden' }}>
