@@ -21,12 +21,6 @@ const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 
 // Each fart leaves a cloud; after this many the air is full and the cowboy is choked
 const CLOUDS_TO_CHOKE = 10
 const START_SPOT = { x: 230, y: 40 }
-// Three soft blobs make up one cloud
-const BLOBS = [
-  { left: 8, top: 30, w: 50, h: 60 },
-  { left: 32, top: 8, w: 46, h: 70 },
-  { left: 54, top: 32, w: 40, h: 56 },
-]
 
 const gasCss = `
   @keyframes gas-in { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
@@ -113,23 +107,16 @@ function Cloud({ cloud }) {
         animation: 'gas-in 2.5s ease-out forwards',
       }}
     >
-      <div style={{ position: 'absolute', inset: 0, animation: `gas-drift ${cloud.drift}s ease-in-out infinite alternate` }}>
-        {BLOBS.map((blob, index) => (
-          <div
-            key={index}
-            style={{
-              position: 'absolute',
-              left: `${blob.left}%`,
-              top: `${blob.top}%`,
-              width: `${blob.w}%`,
-              height: `${blob.h}%`,
-              borderRadius: '50%',
-              background: 'rgba(226, 204, 60, 0.8)',
-              filter: 'blur(14px)',
-            }}
-          />
-        ))}
-      </div>
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse, rgba(226, 204, 60, 0.9), rgba(226, 204, 60, 0.4) 60%, rgba(226, 204, 60, 0))',
+          filter: 'blur(10px)',
+          animation: `gas-drift ${cloud.drift}s ease-in-out infinite alternate`,
+        }}
+      />
     </div>
   )
 }
