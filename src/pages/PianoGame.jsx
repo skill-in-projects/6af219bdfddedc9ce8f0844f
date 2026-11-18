@@ -162,6 +162,30 @@ export default function PianoGame() {
     }
   }, [])
 
+  // The clouds never stop: each one wanders in a random direction and bounces off the edges of the screen
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setClouds((list) =>
+        list.length === 0
+          ? list
+          : list.map((cloud) => {
+              const vx = clamp(cloud.vx + (Math.random() - 0.5) * 0.8, -3, 3)
+              const vy = clamp(cloud.vy + (Math.random() - 0.5) * 0.8, -3, 3)
+              let x = cloud.x + vx
+              let y = cloud.y + vy
+              const minX = -cloud.size / 3
+              const maxX = window.innerWidth - (cloud.size * 2) / 3
+              const minY = -cloud.size / 3
+              const maxY = window.innerHeight - (cloud.size * 2) / 3
+              if (x < minX || x > maxX) x = clamp(x, minX, maxX)
+              if (y < minY || y > maxY) y = clamp(y, minY, maxY)
+              return { ...cloud, x, y, vx: x === cloud.x + vx ? vx : -vx, vy: y === cloud.y + vy ? vy : -vy }
+            }),
+      )
+    }, 50)
+    return () => clearInterval(timer)
+  }, [])
+
   // The face fades from red back to green over a few seconds after each fart
   useEffect(() => {
     const timer = setInterval(() => {
@@ -211,7 +235,15 @@ export default function PianoGame() {
     setFaceColor(RED)
     setClouds((list) => [
       ...list,
-      { id, x: x - size / 2, y: y - size * 0.3, size, drift: 12 + Math.random() * 10 },
+      {
+        id,
+        x: x - size / 2,
+        y: y - size * 0.3,
+        size,
+        drift: 12 + Math.random() * 10,
+        vx: (Math.random() - 0.5) * 4,
+        vy: (Math.random() - 0.5) * 4,
+      },
     ])
   }
 
