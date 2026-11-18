@@ -137,18 +137,12 @@ function moveRobot(robot) {
   return { x: horizontal.position, y: vertical.position, vx: horizontal.velocity, vy: vertical.velocity }
 }
 
-// The robot's nozzle pulls in a gas cloud it passes over: the cloud is drawn toward the nozzle and shrinks away.
-// A cloud is gone once it is fully pulled in
+// When the robot's nozzle touches a gas cloud, the cloud disappears
 function suck(cloud, nozzle) {
   const centerX = cloud.x + cloud.size / 2
   const centerY = cloud.y + cloud.size * 0.3
-  if (Math.hypot(centerX - nozzle.x, centerY - nozzle.y) > cloud.size * 0.6) return cloud
-  return {
-    ...cloud,
-    x: cloud.x + (nozzle.x - centerX) * 0.05,
-    y: cloud.y + (nozzle.y - centerY) * 0.05,
-    sucked: Math.min(cloud.sucked + 0.04, 1),
-  }
+  if (Math.hypot(centerX - nozzle.x, centerY - nozzle.y) > cloud.size * 0.4) return cloud
+  return { ...cloud, sucked: 1 }
 }
 
 // Moves one cloud a little, then pulls it in if the robot's nozzle is over it
