@@ -9,7 +9,7 @@ const ELEPHANT_H = 380
 // Where the elephant's feet are, measured from its top-left corner
 const FEET_X = 210
 const FEET_Y = 328
-// The piano spans exactly the positions the feet can reach, so every key, including the edge ones, can be touched
+// The piano spans the whole range the elephant can reach, so every key, including the edge ones, can be clicked
 const WHITE_W = (STAGE_W - 2 * FEET_X) / 14
 const WHITE_H = 130
 const BLACK_W = 24
@@ -18,8 +18,20 @@ const PIANO_TOP = 500
 const PIANO_LEFT = FEET_X
 const WHITE_PITCHES = [0, 2, 4, 5, 7, 9, 11]
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-// Each touch on a key makes one fart; after this many the air is full and the cowboy is choked
-const FARTS_TO_CHOKE = 10
+// Each fart leaves a cloud; after this many the air is full and the cowboy is choked
+const CLOUDS_TO_CHOKE = 10
+const START_SPOT = { x: 230, y: 40 }
+// Three soft blobs make up one cloud
+const BLOBS = [
+  { left: 8, top: 30, w: 50, h: 60 },
+  { left: 32, top: 8, w: 46, h: 70 },
+  { left: 54, top: 32, w: 40, h: 56 },
+]
+
+const gasCss = `
+  @keyframes gas-in { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+  @keyframes gas-drift { from { transform: translate(-30px, 10px); } to { transform: translate(30px, -15px); } }
+`
 
 // Exact pitch of a key from its MIDI number: 69 is A4, which is 440 Hz
 function frequencyOf(midi) {
@@ -44,24 +56,6 @@ function buildKeys() {
 }
 
 const KEYS = buildKeys()
-
-// The key under a point on the piano. Black keys sit on top of the white ones, so they are checked first
-function keyUnder(px, py) {
-  const inside = (key) => px >= key.x && px <= key.x + key.w && py >= key.y && py <= key.y + key.h
-  return KEYS.find((key) => key.black && inside(key)) ?? KEYS.find((key) => !key.black && inside(key)) ?? null
-}
-
-// A random place above the piano, where the elephant's feet do not reach any key
-function randomSpot() {
-  return {
-    x: Math.random() * (STAGE_W - ELEPHANT_W),
-    y: Math.random() * 120,
-  }
-}
-
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max)
-}
 
 // A piano-like tone: the exact pitch plus a quieter octave above, fading out over about 1.6 seconds
 function playNote(ctx, midi) {
@@ -94,32 +88,83 @@ function playNote(ctx, midi) {
   overtone.stop(now + 1.6)
 }
 
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max)
+}
+
+// A random place above the piano, where the elephant's feet do not reach any key
+function randomSpot() {
+  return {
+    x: Math.random() * (STAGE_W - ELEPHANT_W),
+    y: Math.random() * 120,
+  }
+}
+
+// One gas cloud: it fades in where it was released, then drifts slowly
+function Cloud({ cloud }) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: `${cloud.left}%`,
+        top: `${cloud.top}%`,
+        width: cloud.size,
+        height: cloud.size * 0.6,
+        animation: 'gas-in 2.5s ease-out forwards',
+      }}
+    >
+      <div style={{ position: 'absolute', inset: 0, animation: `gas-drift ${cloud.drift}s ease-in-out infinite alternate` }}>
+        {BLOBS.map((blob, index) => (
+          <div
+            key={index}
+            style={{
+              position: 'absolute',
+              left: `${blob.left}%`,
+              top: `${blob.top}%`,
+              width: `${blob.w}%`,
+              height: `${blob.h}%`,
+              borderRadius: '50%',
+              background: 'rgba(226, 204, 60, 0.8)',
+              filter: 'blur(14px)',
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function PianoGame() {
-  const [position, setPosition] = useState({ x: 230, y: 40 })
+  const [pos, setPos] = useState(START_SPOT)
+  const [touching, setTouching] = useState(false)
+  const [touches, setTouches] = useState(0)
+  const [clouds, setClouds] = useState([])
+  const [gameOver, setGameOver] = useState(false)
   const [lastNote, setLastNote] = useState('')
   const [pressedMidi, setPressedMidi] = useState(null)
-  const [farts, setFarts] = useState(0)
-  const [gameOver, setGameOver] = useState(false)
-  const stageRef = useRef(null)
   const audioRef = useRef(null)
-  const drag = useRef(null)
+  const busy = useRef(false)
+  const nextCloudId = useRef(0)
+  const stepTimer = useRef(null)
   const pressTimer = useRef(null)
 
   useEffect(() => {
     return () => {
+      clearTimeout(stepTimer.current)
       clearTimeout(pressTimer.current)
       audioRef.current?.close()
     }
   }, [])
 
   // The gas takes a few seconds to fill the screen, then the game is over
+  const cloudCount = clouds.length
   useEffect(() => {
-    if (farts < FARTS_TO_CHOKE) return undefined
+    if (cloudCount < CLOUDS_TO_CHOKE) return undefined
     const timer = setTimeout(() => setGameOver(true), 3000)
     return () => clearTimeout(timer)
-  }, [farts])
+  }, [cloudCount])
 
-  // Browsers only allow sound after a click, so the audio is started when the elephant is first grabbed
+  // Browsers only allow sound after a click, so the audio is started on the first key click
   function getAudio() {
     if (!audioRef.current) {
       audioRef.current = new (window.AudioContext || window.webkitAudioContext)()
@@ -128,42 +173,21 @@ export default function PianoGame() {
     return audioRef.current
   }
 
-  function stagePoint(event) {
-    const stage = stageRef.current.getBoundingClientRect()
-    return { x: event.clientX - stage.left, y: event.clientY - stage.top }
-  }
-
-  function handlePointerDown(event) {
-    if (gameOver) return
-    getAudio()
-    const point = stagePoint(event)
-    drag.current = { offsetX: point.x - position.x, offsetY: point.y - position.y }
-    event.currentTarget.setPointerCapture(event.pointerId)
-  }
-
-  function handlePointerMove(event) {
-    if (!drag.current) return
-    const point = stagePoint(event)
-    const x = clamp(point.x - drag.current.offsetX, 0, STAGE_W - ELEPHANT_W)
-    const y = clamp(point.y - drag.current.offsetY, 0, STAGE_H - ELEPHANT_H)
-
-    const key = keyUnder(x + FEET_X, y + FEET_Y)
-    if (key) {
-      // The first touch on a key plays it, then the elephant jumps to a random spot and the drag stops
-      drag.current = null
-      playKey(key)
-      setPosition(randomSpot())
-    } else {
-      setPosition({ x, y })
-    }
-  }
-
-  function endDrag() {
-    drag.current = null
+  function addCloud() {
+    setClouds((list) => [
+      ...list,
+      {
+        id: nextCloudId.current++,
+        left: Math.random() * 85,
+        top: Math.random() * 85,
+        size: 260 + Math.random() * 180,
+        drift: 12 + Math.random() * 10,
+      },
+    ])
   }
 
   function playKey(key) {
-    setFarts((count) => count + 1)
+    setTouches((count) => count + 1)
     playNote(getAudio(), key.midi)
     setLastNote(key.name)
     setPressedMidi(key.midi)
@@ -171,75 +195,58 @@ export default function PianoGame() {
     pressTimer.current = setTimeout(() => setPressedMidi(null), 250)
   }
 
-  function playAgain() {
-    setFarts(0)
-    setGameOver(false)
-    setLastNote('')
-    setPressedMidi(null)
-    setPosition({ x: 230, y: 40 })
+  // Clicking a key: the elephant comes down with its feet on the key, plays it, then jumps back up
+  function handleKey(key) {
+    if (busy.current || gameOver) return
+    busy.current = true
+    setPos({ x: clamp(key.x + key.w / 2 - FEET_X, 0, STAGE_W - ELEPHANT_W), y: PIANO_TOP - FEET_Y })
+    stepTimer.current = setTimeout(() => {
+      // Stands still while the feet are on the key
+      setTouching(true)
+      playKey(key)
+      stepTimer.current = setTimeout(() => {
+        setTouching(false)
+        setPos(randomSpot())
+        busy.current = false
+      }, 500)
+    }, 700)
   }
 
-  // The stick starts at the elephant's rear and its tip sits where the feet touch, so the key it points at is the key touched
-  const stickStart = { x: position.x + 322, y: position.y + 200 }
-  const stickEnd = { x: position.x + FEET_X, y: position.y + FEET_Y }
-  const stickLength = Math.hypot(stickEnd.x - stickStart.x, stickEnd.y - stickStart.y)
-  const stickAngle = Math.atan2(stickEnd.y - stickStart.y, stickEnd.x - stickStart.x)
+  function playAgain() {
+    clearTimeout(stepTimer.current)
+    busy.current = false
+    setClouds([])
+    setGameOver(false)
+    setTouching(false)
+    setTouches(0)
+    setLastNote('')
+    setPressedMidi(null)
+    setPos(START_SPOT)
+  }
 
   return (
     <main style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 24px', textAlign: 'center' }}>
+      <style>{gasCss}</style>
       <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 36, margin: '0 0 8px' }}>Piano elephant</h1>
       <p style={{ color: colors.onPaperMuted, margin: '0 0 24px' }}>
-        Drag the elephant so its feet land on a piano key. The key plays, and the elephant jumps to a new spot.
+        Click a piano key. The elephant comes down, plays the key, and jumps back up.
       </p>
 
-      <div ref={stageRef} style={{ position: 'relative', width: STAGE_W, height: STAGE_H, maxWidth: '100%', margin: '0 auto' }}>
+      <div style={{ position: 'relative', width: STAGE_W, height: STAGE_H, maxWidth: '100%', margin: '0 auto' }}>
         <div
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
           style={{
             position: 'absolute',
-            left: position.x,
-            top: position.y,
+            left: pos.x,
+            top: pos.y,
             width: ELEPHANT_W,
             height: ELEPHANT_H,
-            touchAction: 'none',
-            cursor: 'grab',
+            pointerEvents: 'none',
+            transition: 'left 0.6s ease-in-out, top 0.6s ease-in-out',
+            zIndex: 4,
           }}
         >
-          <JumpingElephant bouncing={false} fartRequest={farts} />
+          <JumpingElephant bouncing={!touching} fartRequest={touches} onFart={addCloud} />
         </div>
-
-        <div
-          style={{
-            position: 'absolute',
-            left: stickStart.x,
-            top: stickStart.y,
-            width: stickLength,
-            height: 6,
-            marginTop: -3,
-            background: '#6b4423',
-            borderRadius: 3,
-            transformOrigin: '0 50%',
-            transform: `rotate(${stickAngle}rad)`,
-            pointerEvents: 'none',
-            zIndex: 3,
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            left: stickEnd.x - 6,
-            top: stickEnd.y - 6,
-            width: 12,
-            height: 12,
-            borderRadius: '50%',
-            background: '#f0b27a',
-            pointerEvents: 'none',
-            zIndex: 3,
-          }}
-        />
 
         <div
           style={{
@@ -255,6 +262,7 @@ export default function PianoGame() {
         {KEYS.map((key) => (
           <div
             key={key.midi}
+            onClick={() => handleKey(key)}
             style={{
               position: 'absolute',
               left: key.x,
@@ -264,6 +272,7 @@ export default function PianoGame() {
               boxSizing: 'border-box',
               border: '1px solid #222',
               borderRadius: '0 0 6px 6px',
+              cursor: 'pointer',
               zIndex: key.black ? 2 : 1,
               background:
                 pressedMidi === key.midi
@@ -278,19 +287,23 @@ export default function PianoGame() {
         ))}
       </div>
 
-      <p style={{ fontSize: 18, margin: '20px 0 0' }}>{lastNote ? `Last key played: ${lastNote}` : 'Drag the elephant onto a key to hear it.'}</p>
-      {/* The yellow gas slowly spreads over the whole screen, one layer per fart */}
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 40,
-          pointerEvents: 'none',
-          background: 'radial-gradient(circle, rgba(245, 215, 66, 0.6), rgba(222, 184, 30, 0.95))',
-          opacity: Math.min(farts / FARTS_TO_CHOKE, 1),
-          transition: 'opacity 3s ease-in-out',
-        }}
-      />
+      <p style={{ fontSize: 18, margin: '20px 0 0' }}>{lastNote ? `Last key played: ${lastNote}` : 'Click a key to hear it.'}</p>
+
+      {/* The yellow gas: clouds that drift over the whole screen, plus a slow yellow tint */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 40, pointerEvents: 'none', overflow: 'hidden' }}>
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgb(222, 195, 50)',
+            opacity: Math.min(cloudCount / CLOUDS_TO_CHOKE, 1) * 0.35,
+            transition: 'opacity 3s ease-in-out',
+          }}
+        />
+        {clouds.map((cloud) => (
+          <Cloud key={cloud.id} cloud={cloud} />
+        ))}
+      </div>
 
       {gameOver && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'grid', placeItems: 'center', background: 'rgba(31, 61, 46, 0.6)' }}>
