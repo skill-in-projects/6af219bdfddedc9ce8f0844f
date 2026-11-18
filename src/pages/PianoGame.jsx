@@ -89,6 +89,12 @@ function shuffledSlots() {
   return Object.fromEntries(order.map((midi, slot) => [midi, slot]))
 }
 
+// The found key first, then the other white keys in their normal order
+function slotsWithFirst(midi) {
+  const others = WHITE_MIDIS.filter((other) => other !== midi)
+  return Object.fromEntries([midi, ...others].map((other, slot) => [other, slot]))
+}
+
 function randomWhiteMidi() {
   return WHITE_MIDIS[Math.floor(Math.random() * WHITE_MIDIS.length)]
 }
@@ -476,15 +482,37 @@ export default function PianoGame() {
     pressTimer.current = setTimeout(() => setPressedMidi(null), 250)
   }
 
+  // A correct find: the found key moves to the front, the keys mix up again, and the elephant steps on the
+  // found key, plays it, and jumps higher
+  function celebrate(midi) {
+    setKeys(placeKeys(slotsWithFirst(midi)))
+    stepTimer.current = setTimeout(() => {
+      const mixed = placeKeys(shuffledSlots())
+      const found = mixed.find((key) => key.midi === midi)
+      setKeys(mixed)
+      setPos({ x: clamp(found.x + found.w / 2 - FEET_X, 0, STAGE_W - ELEPHANT_W), y: PIANO_TOP - FEET_Y })
+      stepTimer.current = setTimeout(() => {
+        playNote(getAudio(), midi)
+        setPressedMidi(midi)
+        clearTimeout(pressTimer.current)
+        pressTimer.current = setTimeout(() => setPressedMidi(null), 250)
+        stepTimer.current = setTimeout(() => {
+          setTouching(false)
+          setPos({ x: Math.random() * (STAGE_W - ELEPHANT_W), y: Math.random() * 20 })
+          busy.current = false
+        }, 500)
+      }, 700)
+    }, 1000)
+  }
+
   // Clicking a key: the elephant comes down with its feet on the key, plays it, then jumps back up
   function handleKey(key) {
     if (busy.current || gameOver) return
-    if (key.midi === target) {
+    const found = key.midi === target
+    if (found) {
       setFeedback('Found it!')
       setScore((count) => count + 1)
       setTarget(randomWhiteMidi())
-      // Finding the key puts the piano back in its normal order
-      setKeys(placeKeys(IDENTITY_SLOTS))
     } else {
       setFeedback('Not that one. Keep looking.')
     }
@@ -495,6 +523,10 @@ export default function PianoGame() {
       setTouching(true)
       playKey(key)
       stepTimer.current = setTimeout(() => {
+        if (found) {
+          celebrate(key.midi)
+          return
+        }
         setTouching(false)
         setPos(randomSpot())
         busy.current = false
