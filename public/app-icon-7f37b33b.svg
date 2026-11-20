@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect x="8" y="8" width="104" height="104" rx="24" fill="#b5651d"/>
+  <rect x="26" y="22" width="68" height="76" rx="6" fill="#fdf8f1"/>
+  <path d="M26 22h12v76H26z" fill="#3b2f25"/>
+  <text x="66" y="68" font-family="Georgia, serif" font-size="30" font-weight="700" fill="#3b2f25" text-anchor="middle">MB</text>
+</svg>
