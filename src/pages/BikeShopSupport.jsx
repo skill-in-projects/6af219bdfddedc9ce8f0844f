@@ -101,6 +101,9 @@ export default function BikeShopSupport() {
   const [confirm, setConfirm] = useState('')
   const [authMessage, setAuthMessage] = useState('')
   const [authBusy, setAuthBusy] = useState(false)
+  const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [newsletterMessage, setNewsletterMessage] = useState('')
+  const [newsletterBusy, setNewsletterBusy] = useState(false)
 
   // Shows the signed-in customer's conversation, or this browser's when no one is signed in
   useEffect(() => {
@@ -206,6 +209,30 @@ export default function BikeShopSupport() {
       setMessage('Could not reach the shop assistant right now. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleNewsletter(event) {
+    event.preventDefault()
+    setNewsletterMessage('')
+    setNewsletterBusy(true)
+    try {
+      const response = await fetch(apiUrl('/api/bike-shop/newsletter'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newsletterEmail }),
+      })
+      if (await isResting(response)) {
+        setResting(true)
+        return
+      }
+      const data = await response.json().catch(() => ({}))
+      if (data.status === 'ok') setNewsletterEmail('')
+      setNewsletterMessage(data.message ?? 'Could not sign you up right now. Please try again.')
+    } catch {
+      setNewsletterMessage('Could not reach the sign-up right now. Please try again.')
+    } finally {
+      setNewsletterBusy(false)
     }
   }
 
@@ -363,6 +390,20 @@ export default function BikeShopSupport() {
       </div>
 
       {message && <p style={{ color: colors.onPaperAccent, margin: '20px 0 0' }}>{message}</p>}
+
+      <section style={{ marginTop: 40, color: colors.onPaper }}>
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 24, margin: '0 0 8px' }}>Get news from the bike shop</h2>
+        <p style={{ color: colors.onPaperMuted, margin: '0 0 12px' }}>Leave your email and we will keep you posted.</p>
+        <form onSubmit={handleNewsletter} style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <Field label="Email" type="email" autoComplete="email" value={newsletterEmail} onChange={(event) => setNewsletterEmail(event.target.value)} required />
+          <div style={{ alignSelf: 'end' }}>
+            <button type="submit" style={buttonStyle} disabled={newsletterBusy}>
+              {newsletterBusy ? 'Please wait...' : 'Sign up'}
+            </button>
+          </div>
+        </form>
+        {newsletterMessage && <p style={{ color: colors.onPaperAccent, margin: '12px 0 0' }}>{newsletterMessage}</p>}
+      </section>
     </main>
   )
 }
