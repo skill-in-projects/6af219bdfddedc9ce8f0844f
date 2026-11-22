@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { buttonStyle, colors } from '../components/theme.js'
 
 const inputStyle = {
@@ -19,15 +19,48 @@ const greeting = {
   text: 'Hi! Ask me about our repairs or when we are open.',
 }
 
+const quietButtonStyle = {
+  ...buttonStyle,
+  background: 'transparent',
+  border: `1px solid ${colors.onPaperAccent}`,
+  color: colors.onPaper,
+}
+
+const STORAGE_KEY = 'bikeShopChat'
+
+// The conversation is kept in this browser, so it is there when the customer comes back on the same device
+function loadMessages() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
+    if (Array.isArray(saved) && saved.length > 0) return saved
+  } catch {
+    // Nothing saved yet, or the saved copy cannot be read
+  }
+  return [greeting]
+}
+
 function apiUrl(path) {
   return `${window.CONFIG?.API_URL ?? ''}${path}`
 }
 
 export default function BikeShopSupport() {
-  const [messages, setMessages] = useState([greeting])
+  const [messages, setMessages] = useState(loadMessages)
   const [question, setQuestion] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages))
+    } catch {
+      // The browser does not allow saving here, so the chat only lasts until the page is reloaded
+    }
+  }, [messages])
+
+  function startNewConversation() {
+    setMessages([greeting])
+    setMessage('')
+  }
 
   async function handleSend() {
     const text = question.trim()
@@ -63,7 +96,7 @@ export default function BikeShopSupport() {
         Bike shop help
       </h1>
       <p style={{ color: colors.onPaperMuted, margin: '0 0 24px' }}>
-        Ask about repairs, prices or opening hours.
+        Ask about repairs, prices or opening hours. Your conversation is kept on this device.
       </p>
 
       <div style={{ display: 'grid', gap: 12, marginBottom: 20 }}>
@@ -108,6 +141,12 @@ export default function BikeShopSupport() {
           Send
         </button>
       </form>
+
+      <div style={{ marginTop: 20 }}>
+        <button type="button" style={quietButtonStyle} onClick={startNewConversation} disabled={loading}>
+          Start a new conversation
+        </button>
+      </div>
 
       {message && <p style={{ color: colors.onPaperAccent, margin: '20px 0 0' }}>{message}</p>}
     </main>
