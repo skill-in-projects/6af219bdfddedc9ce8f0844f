@@ -1,6 +1,6 @@
 {
   "name": "Memory Book",
-  "brief": "Memory Book is a private journal for one person. They write short memories with a date and a mood, and look back on them. The main screens are Home with the latest memories, a full Memories list, a New memory form, and Find on map, where an address is typed in and shown on a map image.",
+  "brief": "Memory Book is a private journal for one person. They write short memories with a date and a mood, and look back on them. The main screens are Home with the latest memories, a full Memories list, a New memory form, and Find on map, where an address is typed in and shown on a map image. A Bike shop help page answers customers' questions about repairs and opening hours.",
   "pages": [
     {"name": "Home", "path": "/"},
     {"name": "Memories", "path": "/#/memories"},
@@ -10,6 +10,7 @@
     {"name": "Cowboy game", "path": "/#/game"},
     {"name": "Chatbot", "path": "/#/chat"},
     {"name": "Piano", "path": "/#/piano"},
-    {"name": "Account", "path": "/#/account"}
+    {"name": "Account", "path": "/#/account"},
+    {"name": "Bike shop help", "path": "/#/bike-shop"}
   ]
 }

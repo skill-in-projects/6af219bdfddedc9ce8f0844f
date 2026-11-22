@@ -13,6 +13,7 @@ A private book where a person writes short memories (title, date, mood and a few
 - **Chatbot** (`/#/chat`): type a question and get a reply from Gemini. The chatbot's main topic is the digestive system of elephants, and it also answers other questions briefly. Each question uses credits. The last 10 turns are sent with each question so replies follow the conversation.
 - **Piano** (`/#/piano`): a piano floor with two octaves under the jumping elephant. Drag the elephant so its feet touch a key: the key plays its exact pitch, and the elephant jumps to a random spot above the piano.
 - **Account** (`/#/account`): sign up with a cowboy name, email, password and password confirmation, or sign in with email and password. After signing in, it shows a welcome and a Sign out button. Accounts are saved in the database, so creating one needs a paid workspace.
+- **Bike shop help** (`/#/bike-shop`): a support agent for a bike shop. Customers type a question about repairs, prices or opening hours and get a reply from Gemini. It answers only from the shop facts in `backend/Services/BikeShopInfo.cs` (sample hours and repairs for now, to be replaced with the shop's real ones). Each question uses credits. The last 10 turns are sent with each question.
 - **Beatles** (`/#/beatles`): a list of favorite Beatles songs, starting with three. Type a song title and press "Add song" to add it to the list. The list is kept in the page only, so it resets on reload.
 
 ## API endpoints
@@ -26,6 +27,7 @@ A private book where a person writes short memories (title, date, mood and a few
 - `POST /api/auth/register` and `POST /api/auth/login`: create an account or sign in with email and password. Both return a sign-in token. `GET /api/auth/me` says who is signed in, from the token. No page uses these yet. Sign-ins reset whenever the backend restarts, because the signing key is made fresh at each start.
 - `GET /api/candidates`: the 10 made-up candidates (name, headline, city, email). No page uses it yet.
 - `POST /api/chat`: sends a question and the earlier turns to Gemini and returns one reply. Used by the **Chatbot** page. Each question uses credits.
+- `POST /api/bike-shop/chat`: sends a customer question and the earlier turns to Gemini, with the bike shop facts as context, and returns one reply. Used by the **Bike shop help** page. Each question uses credits.
 
 Memories are still sample data in `src/data.js`.
 
