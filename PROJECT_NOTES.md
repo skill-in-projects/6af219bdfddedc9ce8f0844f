@@ -13,7 +13,7 @@ A private book where a person writes short memories (title, date, mood and a few
 - **Chatbot** (`/#/chat`): type a question and get a reply from Gemini. The chatbot's main topic is the digestive system of elephants, and it also answers other questions briefly. Each question uses credits. The last 10 turns are sent with each question so replies follow the conversation.
 - **Piano** (`/#/piano`): a piano floor with two octaves under the jumping elephant. Drag the elephant so its feet touch a key: the key plays its exact pitch, and the elephant jumps to a random spot above the piano.
 - **Account** (`/#/account`): sign up with a cowboy name, email, password and password confirmation, or sign in with email and password. After signing in, it shows a welcome and a Sign out button. Accounts are saved in the database, so creating one needs a paid workspace.
-- **Bike shop help** (`/#/bike-shop`): a support agent for a bike shop. Customers type a question about repairs, prices or opening hours and get a reply from Gemini. It answers only from the shop facts in `backend/Services/BikeShopInfo.cs` (sample hours and repairs for now, to be replaced with the shop's real ones). Each question uses credits. The last 10 turns are sent with each question. The conversation is saved in the browser (localStorage, key `bikeShopChat`), so it returns on the same device; a "Start a new conversation" button clears it. Saving on the server (per customer account, across devices) needs a paid workspace, since the trial database is read-only; not built yet.
+- **Bike shop help** (`/#/bike-shop`): a support agent for a bike shop. Customers type a question about repairs, prices or opening hours and get a reply from Gemini. It answers only from the shop facts in `backend/Services/BikeShopInfo.cs` (sample hours and repairs for now, to be replaced with the shop's real ones). Each question uses credits. The last 10 saved turns are sent with each question. Each browser is one customer: a random id kept in localStorage (`bikeShopCustomerId`) ties the saved conversation to it. The conversation is saved in the database, so it is still there on return. A "Start a new conversation" button clears it. Customers do not sign in, so the same customer on another device starts fresh; per-account memory across devices is not built yet.
 - **Beatles** (`/#/beatles`): a list of favorite Beatles songs, starting with three. Type a song title and press "Add song" to add it to the list. The list is kept in the page only, so it resets on reload.
 
 ## API endpoints
@@ -27,13 +27,16 @@ A private book where a person writes short memories (title, date, mood and a few
 - `POST /api/auth/register` and `POST /api/auth/login`: create an account or sign in with email and password. Both return a sign-in token. `GET /api/auth/me` says who is signed in, from the token. No page uses these yet. Sign-ins reset whenever the backend restarts, because the signing key is made fresh at each start.
 - `GET /api/candidates`: the 10 made-up candidates (name, headline, city, email). No page uses it yet.
 - `POST /api/chat`: sends a question and the earlier turns to Gemini and returns one reply. Used by the **Chatbot** page. Each question uses credits.
-- `POST /api/bike-shop/chat`: sends a customer question and the earlier turns to Gemini, with the bike shop facts as context, and returns one reply. Used by the **Bike shop help** page. Each question uses credits.
+- `POST /api/bike-shop/chat`: sends a customer question (with the customer id) and the customer's last 10 saved turns to Gemini, with the bike shop facts as context, returns one reply, and saves both messages. Used by the **Bike shop help** page. Each question uses credits.
+- `GET /api/bike-shop/chat?customerId=...`: the customer's saved conversation, oldest first (up to 50). Used when the **Bike shop help** page opens.
+- `DELETE /api/bike-shop/chat?customerId=...`: clears the customer's saved conversation. Used by "Start a new conversation".
 
 Memories are still sample data in `src/data.js`.
 
 ## Database tables
 - `cowboys` (id, name, address, belt_size, salary): created when the backend starts. When the table is empty it gets 50 sample rows, so restarts do not add more.
 - `app_users` (id, email, password_hash, created_at): sign-up accounts. Passwords are stored only as hashes. Created when the backend starts.
+- `bike_shop_messages` (id, customer_id, role, text, created_at): the bike shop conversations, one row per message. Created when the backend starts.
 - `candidates` (id, full_name, headline, city, email), with `candidate_experiences`, `candidate_skills`, `candidate_education` and `candidate_certifications` linked to it. Shaped like a CV. Created when the backend starts, with 10 made-up people. The names, companies and schools are invented; no real person's details are stored.
 
 ## Trial state (not saved yet)
