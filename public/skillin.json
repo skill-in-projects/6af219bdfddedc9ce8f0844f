@@ -11,6 +11,7 @@
     {"name": "Chatbot", "path": "/#/chat"},
     {"name": "Piano", "path": "/#/piano"},
     {"name": "Account", "path": "/#/account"},
-    {"name": "Bike shop help", "path": "/#/bike-shop"}
+    {"name": "Bike shop help", "path": "/#/bike-shop"},
+    {"name": "About", "path": "/#/about"}
   ]
 }

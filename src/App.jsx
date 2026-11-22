@@ -10,6 +10,7 @@ import Chatbot from './pages/Chatbot.jsx'
 import PianoGame from './pages/PianoGame.jsx'
 import Account from './pages/Account.jsx'
 import BikeShopSupport from './pages/BikeShopSupport.jsx'
+import About from './pages/About.jsx'
 import { sampleMemories } from './data.js'
 import { colors } from './components/theme.js'
 
@@ -65,6 +66,9 @@ export default function App() {
             <Link to="/bike-shop" style={{ color: colors.onPaper }}>
               Bike shop help
             </Link>
+            <Link to="/about" style={{ color: colors.onPaper }}>
+              About
+            </Link>
           </div>
         </nav>
 
@@ -79,6 +83,7 @@ export default function App() {
           <Route path="/piano" element={<PianoGame />} />
           <Route path="/account" element={<Account />} />
           <Route path="/bike-shop" element={<BikeShopSupport />} />
+          <Route path="/about" element={<About />} />
         </Routes>
       </div>
     </HashRouter>
