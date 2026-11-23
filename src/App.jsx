@@ -6,6 +6,7 @@ import NewMemory from './pages/NewMemory.jsx'
 import FindOnMap from './pages/FindOnMap.jsx'
 import Beatles from './pages/Beatles.jsx'
 import CowboyGame from './pages/CowboyGame.jsx'
+import TruckDrivers from './pages/TruckDrivers.jsx'
 import Chatbot from './pages/Chatbot.jsx'
 import PianoGame from './pages/PianoGame.jsx'
 import Account from './pages/Account.jsx'
@@ -54,6 +55,9 @@ export default function App() {
             <Link to="/game" style={{ color: colors.onPaper }}>
               Cowboy game
             </Link>
+            <Link to="/truck-drivers" style={{ color: colors.onPaper }}>
+              Truck drivers
+            </Link>
             <Link to="/chat" style={{ color: colors.onPaper }}>
               Chatbot
             </Link>
@@ -79,6 +83,7 @@ export default function App() {
           <Route path="/map" element={<FindOnMap />} />
           <Route path="/beatles" element={<Beatles />} />
           <Route path="/game" element={<CowboyGame />} />
+          <Route path="/truck-drivers" element={<TruckDrivers />} />
           <Route path="/chat" element={<Chatbot />} />
           <Route path="/piano" element={<PianoGame />} />
           <Route path="/account" element={<Account />} />

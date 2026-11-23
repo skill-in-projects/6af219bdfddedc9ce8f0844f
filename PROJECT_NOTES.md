@@ -10,6 +10,7 @@ A private book where a person writes short memories (title, date, mood and a few
 - **New memory** (`/#/new`): a form to write a memory (title, date, mood, text). Submitting adds it to the top of the list and opens Memories.
 - **Find on map** (`/#/map`): type an address, press "Show on map", and see the address with a map image and a red marker on it. The map image cannot be dragged or zoomed.
 - **Cowboy game** (`/#/game`): pick a cowboy from a list (names and addresses from the cowboys table) and see their salary. The elephant jumps here too. Each click while its puff cloud is showing gives the chosen cowboy a 10% raise, saved in the database. With no cowboy chosen, the click shows "Choose a cowboy first."
+- **Truck drivers** (`/#/truck-drivers`): a table of every driver with a small face avatar (skin, trucker cap and shirt colors set by the driver's id, like the cowboys' looks), name, address, license class and years driving. Read-only.
 - **Chatbot** (`/#/chat`): type a question and get a reply from Gemini. The chatbot's main topic is the digestive system of elephants, and it also answers other questions briefly. Each question uses credits. The last 10 turns are sent with each question so replies follow the conversation.
 - **Piano** (`/#/piano`): a piano floor with two octaves under the jumping elephant. Drag the elephant so its feet touch a key: the key plays its exact pitch, and the elephant jumps to a random spot above the piano.
 - **Account** (`/#/account`): sign up with a cowboy name, email, password and password confirmation, or sign in with email and password. After signing in, it shows a welcome and a Sign out button. Accounts are saved in the database, so creating one needs a paid workspace.
@@ -23,6 +24,7 @@ A private book where a person writes short memories (title, date, mood and a few
 - `GET /api/jokes/random`: asks Gemini for one short joke. Used by the "Tell me a joke" button on Home. Each click uses credits.
 - `GET /api/dinner/ideas?ingredients=...`: asks Gemini for three dinner ideas from the listed fridge items (max 300 characters). Used by the "Suggest 3 dinners" section on Home. Each click uses credits.
 
+- `GET /api/truck-drivers`: every row of the `truck_drivers` table (name, address, license class, years driving). Used by the **Truck drivers** page.
 - `GET /api/cowboys`: every row of the `cowboys` table (name, address, belt size, salary). Used by the **Cowboy game** page.
 - `POST /api/cowboys/{id}/raise`: gives that cowboy a 10% raise in the database and returns the new salary. Used by the **Cowboy game** page on each click during the puff.
 - `POST /api/auth/register` and `POST /api/auth/login`: create an account or sign in with email and password. Both return a sign-in token. `GET /api/auth/me` says who is signed in, from the token. No page uses these yet. Sign-ins reset whenever the backend restarts, because the signing key is made fresh at each start.
@@ -42,6 +44,7 @@ Memories are still sample data in `src/data.js`.
 - `bike_shop_messages` (id, customer_id, role, text, created_at): the bike shop conversations, one row per message. Created when the backend starts.
 - `newsletter_signups` (id, email, created_at): bike shop newsletter emails, each address once. Created when the backend starts.
 - `repair_bookings` (id, customer_name, bike, service, booking_date, booking_time): bike shop repair bookings. Created when the backend starts, with 3 sample bookings dated the day the table was created (the sample rows are only added while the table is empty). "Today" means the database's current date.
+- `truck_drivers` (id, name, address, license_class, years_driving): created when the backend starts. When the table is empty it gets 30 sample rows, so restarts do not add more.
 - `candidates` (id, full_name, headline, city, email), with `candidate_experiences`, `candidate_skills`, `candidate_education` and `candidate_certifications` linked to it. Shaped like a CV. Created when the backend starts, with 10 made-up people. The names, companies and schools are invented; no real person's details are stored.
 
 ## Trial state (not saved yet)

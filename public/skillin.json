@@ -8,6 +8,7 @@
     {"name": "Find on map", "path": "/#/map"},
     {"name": "Beatles", "path": "/#/beatles"},
     {"name": "Cowboy game", "path": "/#/game"},
+    {"name": "Truck drivers", "path": "/#/truck-drivers"},
     {"name": "Chatbot", "path": "/#/chat"},
     {"name": "Piano", "path": "/#/piano"},
     {"name": "Account", "path": "/#/account"},
