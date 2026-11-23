@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { EmptyLink, MemoryCard } from '../components/ui.jsx'
 import JumpingElephant from '../components/JumpingElephant.jsx'
+import FallingFlowers from '../components/FallingFlowers.jsx'
 import { buttonStyle, colors } from '../components/theme.js'
 
 const inputStyle = {
@@ -76,6 +77,7 @@ export default function Home({ memories }) {
 
   return (
     <main style={{ maxWidth: 880, margin: '0 auto', padding: '40px 24px' }}>
+      <FallingFlowers />
       <section style={{ textAlign: 'center', padding: '32px 0 48px' }}>
         <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 44, margin: '0 0 12px' }}>
           Keep the moments that matter
