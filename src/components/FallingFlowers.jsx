@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 const PETALS = ['#f472b6', '#f9a8d4', '#fde047', '#fb923c', '#c4b5fd']
 const FLOWER_COUNT = 18
+const SNOW_COUNT = 30
 
 const css = `
   .falling-flower {
@@ -33,7 +34,16 @@ function Flower({ color, size }) {
   )
 }
 
-// Flowers that drift down from the top of the page, each with its own start, speed and sway
+// A snowflake: a soft white dot
+function Snowflake({ size }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="6" fill="#ffffff" opacity="0.9" />
+    </svg>
+  )
+}
+
+// Flowers and snow that drift down from the top of the page, each with its own start, speed and sway
 export default function FallingFlowers() {
   const [flowers] = useState(() =>
     Array.from({ length: FLOWER_COUNT }, (_, index) => ({
@@ -46,13 +56,22 @@ export default function FallingFlowers() {
       sway: `${(Math.random() - 0.5) * 120}px`,
     }))
   )
+  const [snow] = useState(() =>
+    Array.from({ length: SNOW_COUNT }, () => ({
+      left: Math.random() * 100,
+      size: 5 + Math.random() * 7,
+      duration: 12 + Math.random() * 10,
+      delay: -Math.random() * 22,
+      sway: `${(Math.random() - 0.5) * 60}px`,
+    }))
+  )
 
   return (
     <div aria-hidden="true">
       <style>{css}</style>
       {flowers.map((flower, index) => (
         <div
-          key={index}
+          key={`flower-${index}`}
           className="falling-flower"
           style={{
             left: `${flower.left}%`,
@@ -62,6 +81,20 @@ export default function FallingFlowers() {
           }}
         >
           <Flower color={flower.color} size={flower.size} />
+        </div>
+      ))}
+      {snow.map((flake, index) => (
+        <div
+          key={`snow-${index}`}
+          className="falling-flower"
+          style={{
+            left: `${flake.left}%`,
+            animationDuration: `${flake.duration}s`,
+            animationDelay: `${flake.delay}s`,
+            '--sway': flake.sway,
+          }}
+        >
+          <Snowflake size={flake.size} />
         </div>
       ))}
     </div>
