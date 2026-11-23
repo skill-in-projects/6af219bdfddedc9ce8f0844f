@@ -3,6 +3,7 @@ import { useState } from 'react'
 const PETALS = ['#f472b6', '#f9a8d4', '#fde047', '#fb923c', '#c4b5fd']
 const FLOWER_COUNT = 18
 const SNOW_COUNT = 30
+const ORANGE_COUNT = 12
 
 const css = `
   .falling-flower {
@@ -43,7 +44,17 @@ function Snowflake({ size }) {
   )
 }
 
-// Flowers and snow that drift down from the top of the page, each with its own start, speed and sway
+// An orange: an orange ball with a small green leaf on top
+function Orange({ size }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40">
+      <circle cx="20" cy="22" r="16" fill="#f97316" />
+      <ellipse cx="25" cy="7" rx="6" ry="3" fill="#22c55e" transform="rotate(-25 25 7)" />
+    </svg>
+  )
+}
+
+// Flowers, snow and oranges that drift down from the top of the page, each with its own start, speed and sway
 export default function FallingFlowers() {
   const [flowers] = useState(() =>
     Array.from({ length: FLOWER_COUNT }, (_, index) => ({
@@ -66,9 +77,33 @@ export default function FallingFlowers() {
     }))
   )
 
+  const [oranges] = useState(() =>
+    Array.from({ length: ORANGE_COUNT }, () => ({
+      left: Math.random() * 100,
+      size: 22 + Math.random() * 14,
+      duration: 11 + Math.random() * 9,
+      delay: -Math.random() * 20,
+      sway: `${(Math.random() - 0.5) * 100}px`,
+    }))
+  )
+
   return (
     <div aria-hidden="true">
       <style>{css}</style>
+      {oranges.map((orange, index) => (
+        <div
+          key={`orange-${index}`}
+          className="falling-flower"
+          style={{
+            left: `${orange.left}%`,
+            animationDuration: `${orange.duration}s`,
+            animationDelay: `${orange.delay}s`,
+            '--sway': orange.sway,
+          }}
+        >
+          <Orange size={orange.size} />
+        </div>
+      ))}
       {flowers.map((flower, index) => (
         <div
           key={`flower-${index}`}
