@@ -78,7 +78,10 @@ const PUFF_MS = 1150
 // Colors of the cowboy on the elephant's back
 const DEFAULT_LOOK = { shirt: SHIRT, jeans: JEANS, hat: HAT }
 
-// A grey elephant built from boxes, jumping in place. Facing left. A cowboy rides on its back.
+// Colors of the truck driver riding next to the cowboy, with a yellow trucker cap
+const DRIVER_LOOK = { shirt: '#2f5d8a', jeans: '#3b3b3b', hat: '#c9a227' }
+
+// A grey elephant built from boxes, jumping in place. Facing left. A cowboy and a truck driver ride on its back.
 // onPuffClick runs when the visitor clicks while the puff cloud is showing.
 // look sets the cowboy's shirt, jeans and hat colors.
 export default function JumpingElephant({ onPuffClick, look = DEFAULT_LOOK, bouncing = true, fartRequest = 0, onFart, faceColor = SKIN, quiet = false }) {
@@ -190,7 +193,7 @@ export default function JumpingElephant({ onPuffClick, look = DEFAULT_LOOK, boun
   return (
     <div
       role="img"
-      aria-label="A grey 3D elephant jumping with a cowboy on its back"
+      aria-label="A grey 3D elephant jumping with a cowboy and a truck driver on its back"
       onClick={handleClick}
       className={bouncing ? undefined : 'elephant-still'}
       style={{ position: 'relative', width: 420, height: 380, margin: '0 auto', perspective: 800 }}
@@ -226,6 +229,13 @@ export default function JumpingElephant({ onPuffClick, look = DEFAULT_LOOK, boun
         <Block x={10} y={-166} z={15} w={10} h={2} d={2} color={EYE} />
         <Block x={10} y={-189} z={0} w={56} h={5} d={56} color={look.hat} />
         <Block x={10} y={-198} z={0} w={28} h={14} d={28} color={look.hat} />
+        <Block x={-50} y={-110} z={0} w={48} h={20} d={44} color={DRIVER_LOOK.jeans} />
+        <Block x={-50} y={-140} z={0} w={34} h={40} d={26} color={DRIVER_LOOK.shirt} />
+        <Block x={-50} y={-175} z={0} w={24} h={30} d={24} color={faceColor} />
+        <Block x={-56} y={-180} z={13} w={3} h={3} d={2} color={EYE} />
+        <Block x={-44} y={-180} z={13} w={3} h={3} d={2} color={EYE} />
+        <Block x={-50} y={-189} z={0} w={48} h={5} d={48} color={DRIVER_LOOK.hat} />
+        <Block x={-50} y={-198} z={0} w={24} h={12} d={24} color={DRIVER_LOOK.hat} />
       </div>
       <div
         className="elephant-shadow"

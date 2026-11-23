@@ -4,7 +4,7 @@
 A private book where a person writes short memories (title, date, mood and a few lines) and looks back on them.
 
 ## Main screens
-- **Home** (`/`): a welcome section, a "Write a memory" button, a "Tell me a joke" button that shows a one-line joke from Gemini, and the latest three memories. Under the joke, a grey 3D elephant jumps in place with a cowboy riding on its back (built from CSS boxes, no image; it stops moving for users who ask for less motion). Each landing makes a synthesized fart sound and a puff cloud from its back, and the elephant turns pink for a moment. Sound starts after the first click or key press on the page.
+- **Home** (`/`): a welcome section, a "Write a memory" button, a "Tell me a joke" button that shows a one-line joke from Gemini, and the latest three memories. Under the joke, a grey 3D elephant jumps in place with a cowboy and a truck driver riding on its back (built from CSS boxes, no image; it stops moving for users who ask for less motion). Each landing makes a synthesized fart sound and a puff cloud from its back, and the elephant turns pink for a moment. Sound starts after the first click or key press on the page.
 - **Home** also has a "What is for dinner?" section: type what is in the fridge, press "Suggest 3 dinners", and see three dinner ideas from Gemini. Each press uses credits.
 - **Memories** (`/#/memories`): every memory, newest first.
 - **New memory** (`/#/new`): a form to write a memory (title, date, mood, text). Submitting adds it to the top of the list and opens Memories.
@@ -55,5 +55,6 @@ Memories are still sample data in `src/data.js`.
 - First version: a warm paper-and-brown look, with serif headings.
 - Later: the user asked for a dark green background. Cards stay white; text on the background is cream (colors in `src/components/theme.js`).
 - Moods offered: Happy, Calm, Thoughtful, Excited, Sad.
+- Elephant riders: the user asked for a truck driver beside the cowboy on the elephant. The truck driver is drawn in the same way on every elephant (blue shirt, yellow trucker cap); the cowboy still changes with the Cowboy game choice.
 - Map page: the user asked for an address on a map. Only a static map image is possible here, so it is not interactive.
 - Cowboys table: the user asked for a table named "cowbos" with 50 mock rows (name, address, belt size, salary). It is named `cowboys` (read as a typo).
