@@ -32,6 +32,7 @@ A private book where a person writes short memories (title, date, mood and a few
 - `GET /api/bike-shop/chat?customerId=...`: the customer's saved conversation, oldest first (up to 50). Used when the **Bike shop help** page opens.
 - `DELETE /api/bike-shop/chat?customerId=...`: clears the customer's saved conversation. Used by "Start a new conversation".
 - `POST /api/bike-shop/newsletter`: saves an email for the bike shop newsletter (once per address). Sends no emails. Used by the "Get news from the bike shop" sign-up at the bottom of the **Bike shop help** page.
+- `GET /api/bike-shop/repair-bookings/today`: today's repair bookings (customer name, bike, service, time), earliest first. No page uses it yet.
 
 Memories are still sample data in `src/data.js`.
 
@@ -40,6 +41,7 @@ Memories are still sample data in `src/data.js`.
 - `app_users` (id, email, password_hash, created_at): sign-up accounts. Passwords are stored only as hashes. Created when the backend starts.
 - `bike_shop_messages` (id, customer_id, role, text, created_at): the bike shop conversations, one row per message. Created when the backend starts.
 - `newsletter_signups` (id, email, created_at): bike shop newsletter emails, each address once. Created when the backend starts.
+- `repair_bookings` (id, customer_name, bike, service, booking_date, booking_time): bike shop repair bookings. Created when the backend starts, with 3 sample bookings dated the day the table was created (the sample rows are only added while the table is empty). "Today" means the database's current date.
 - `candidates` (id, full_name, headline, city, email), with `candidate_experiences`, `candidate_skills`, `candidate_education` and `candidate_certifications` linked to it. Shaped like a CV. Created when the backend starts, with 10 made-up people. The names, companies and schools are invented; no real person's details are stored.
 
 ## Trial state (not saved yet)
