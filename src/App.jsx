@@ -15,19 +15,24 @@ import About from './pages/About.jsx'
 import { sampleMemories } from './data.js'
 import { colors } from './components/theme.js'
 
-// Phone screens: smaller headings and padding, the menu links wrap onto more lines, and the elephants shrink
+// Phone screens: smaller headings and padding, the menu links sit behind a hamburger button, and the elephants shrink
 const mobileCss = `
+  .menu-toggle { display: none; }
   @media (max-width: 600px) {
     nav { padding: 12px 16px !important; }
     main { padding: 24px 16px !important; }
     h1 { font-size: 30px !important; }
-    .menu-links { gap: 12px !important; font-size: 15px; }
+    .menu-toggle { display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 44px; height: 44px; padding: 10px; background: none; border: none; cursor: pointer; }
+    .menu-toggle span { display: block; height: 3px; border-radius: 2px; background: #f4efe4; }
+    .menu-links { display: none !important; }
+    .menu-links.is-open { display: flex !important; flex-direction: column; align-items: flex-start; width: 100%; gap: 14px !important; font-size: 17px; }
     .home-elephant, .cowboy-elephant { zoom: 0.7; }
   }
 `
 
 export default function App() {
   const [memories, setMemories] = useState(sampleMemories)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   function addMemory(memory) {
     setMemories((current) => [memory, ...current])
@@ -51,7 +56,23 @@ export default function App() {
           <Link to="/" style={{ fontFamily: 'Georgia, serif', fontSize: 22, color: colors.onPaper, textDecoration: 'none' }}>
             Memory Book
           </Link>
-          <div className="menu-links" style={{ display: 'flex', flexWrap: 'wrap', gap: 20 }}>
+          <button
+            type="button"
+            className="menu-toggle"
+            aria-label="Open menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+          {/* Clicking any link closes the menu on phones */}
+          <div
+            className={`menu-links${menuOpen ? ' is-open' : ''}`}
+            onClick={() => setMenuOpen(false)}
+            style={{ display: 'flex', flexWrap: 'wrap', gap: 20 }}
+          >
             <Link to="/memories" style={{ color: colors.onPaper }}>
               Memories
             </Link>

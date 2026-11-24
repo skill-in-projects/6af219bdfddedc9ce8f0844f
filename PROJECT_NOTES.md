@@ -57,6 +57,6 @@ Memories are still sample data in `src/data.js`.
 - Later: the user asked for a dark green background. Cards stay white; text on the background is cream (colors in `src/components/theme.js`).
 - Moods offered: Happy, Calm, Thoughtful, Excited, Sad.
 - Elephant riders: the user asked for a truck driver beside the cowboy on the elephant. The truck driver is drawn in the same way on every elephant (blue shirt, yellow trucker cap); the cowboy still changes with the Cowboy game choice.
-- Mobile view: the user asked for the app to fit phone screens. Below 600px wide, headings and page padding get smaller (style block in `src/App.jsx`), the menu links wrap, the Home and Cowboy game elephants shrink, and the Piano stage scrolls sideways.
+- Mobile view: the user asked for the app to fit phone screens. Below 600px wide, headings and page padding get smaller (style block in `src/App.jsx`), the menu links sit behind a hamburger button (closes after a click), the Home and Cowboy game elephants shrink, and the Piano stage scrolls sideways.
 - Map page: the user asked for an address on a map. Only a static map image is possible here, so it is not interactive.
 - Cowboys table: the user asked for a table named "cowbos" with 50 mock rows (name, address, belt size, salary). It is named `cowboys` (read as a typo).
