@@ -111,7 +111,7 @@ export default function CowboyGame() {
         </p>
       )}
 
-      <div style={{ marginTop: 32 }}>
+      <div className="cowboy-elephant" style={{ marginTop: 32 }}>
         <JumpingElephant onPuffClick={handleRaise} look={selected ? lookFor(selected) : undefined} />
       </div>
 

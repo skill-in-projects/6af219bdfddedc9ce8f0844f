@@ -566,6 +566,8 @@ export default function PianoGame() {
         Click a piano key. The elephant comes down, plays the key, and jumps back up.
       </p>
 
+      {/* On a phone the piano is wider than the screen, so this box scrolls sideways. The top padding keeps the jump visible */}
+      <div style={{ overflowX: 'auto', paddingTop: 130, marginTop: -130 }}>
       <div ref={stageRef} style={{ position: 'relative', width: STAGE_W, height: STAGE_H, maxWidth: '100%', margin: '0 auto' }}>
         <div
           ref={elephantRef}
@@ -637,6 +639,7 @@ export default function PianoGame() {
             }}
           />
         ))}
+      </div>
       </div>
 
       <p style={{ fontSize: 18, margin: '20px 0 0' }}>

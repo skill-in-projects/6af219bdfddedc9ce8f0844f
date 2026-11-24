@@ -15,6 +15,17 @@ import About from './pages/About.jsx'
 import { sampleMemories } from './data.js'
 import { colors } from './components/theme.js'
 
+// Phone screens: smaller headings and padding, the menu links wrap onto more lines, and the elephants shrink
+const mobileCss = `
+  @media (max-width: 600px) {
+    nav { padding: 12px 16px !important; }
+    main { padding: 24px 16px !important; }
+    h1 { font-size: 30px !important; }
+    .menu-links { gap: 12px !important; font-size: 15px; }
+    .home-elephant, .cowboy-elephant { zoom: 0.7; }
+  }
+`
+
 export default function App() {
   const [memories, setMemories] = useState(sampleMemories)
 
@@ -25,6 +36,7 @@ export default function App() {
   return (
     <HashRouter>
       <div style={{ minHeight: '100vh', background: colors.paper, color: colors.onPaper, fontFamily: 'system-ui, sans-serif' }}>
+        <style>{mobileCss}</style>
         <nav
           style={{
             display: 'flex',
@@ -39,7 +51,7 @@ export default function App() {
           <Link to="/" style={{ fontFamily: 'Georgia, serif', fontSize: 22, color: colors.onPaper, textDecoration: 'none' }}>
             Memory Book
           </Link>
-          <div style={{ display: 'flex', gap: 20 }}>
+          <div className="menu-links" style={{ display: 'flex', flexWrap: 'wrap', gap: 20 }}>
             <Link to="/memories" style={{ color: colors.onPaper }}>
               Memories
             </Link>

@@ -95,7 +95,7 @@ export default function Home({ memories }) {
         </div>
         {joke && <p style={{ fontSize: 18, margin: '20px 0 0' }}>{joke}</p>}
         {jokeMessage && <p style={{ color: '#b91c1c', margin: '20px 0 0' }}>{jokeMessage}</p>}
-        <div style={{ marginTop: 32 }}>
+        <div className="home-elephant" style={{ marginTop: 32 }}>
           <JumpingElephant />
         </div>
       </section>
